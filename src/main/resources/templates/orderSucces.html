@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Sifariş Uğurla Tamamlandı</title>
+    <style>
+        .success-message {
+            text-align: center;
+            padding: 50px 20px;
+            font-size: 1.5em;
+            color: #4CAF50; /* Yaşıl rəngdə */
+        }
+        .success-message h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        .success-message p {
+            font-size: 1.2em;
+            color: #555;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 10px 20px;
+            background-color: #ff6600;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<main layout:fragment="content">
+    <div class="container">
+        <div class="success-message">
+            <h2>🎉 Sifarişiniz qəbul edildi!</h2>
+            <p>Çox sağ olun! Sifarişiniz uğurla tamamlandı. Tezliklə kuryer sizinlə əlaqə saxlayacaq.</p>
+            <a th:href="@{/}" class="back-link">Ana Səhifəyə Qayıt</a>
+        </div>
+    </div>
+</main>
+<footer class="footer_section" layout:fragment="footer">
+</footer>
+</body>
+</html>

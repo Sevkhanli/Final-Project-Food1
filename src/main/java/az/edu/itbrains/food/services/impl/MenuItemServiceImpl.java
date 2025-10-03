@@ -47,6 +47,3 @@ public class MenuItemServiceImpl implements IMenuItemService {
                 .map(item -> modelMapper.map(item, MenuItemResponseDTO.class));
     }
 }
-
-
-

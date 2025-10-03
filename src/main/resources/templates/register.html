@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="az" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Qeydiyyat - FF Restaurant</title>
+    <style>
+        .register_section {
+            padding: 80px 0;
+            background-color: #f7f7f7; /* Yüngül fon rəngi */
+        }
+        .register_form {
+            max-width: 450px;
+            margin: auto;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+        }
+        .register_form h2 {
+            text-align: center;
+            color: #ff6600; /* Brend rəngi: Narıncı/Qırmızı */
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+        .register_form .form-control {
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            padding: 12px;
+        }
+        .register_form .btn-register {
+            background-color: #ff6600;
+            border: none;
+            color: white;
+            padding: 12px;
+            width: 100%;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        .register_form .btn-register:hover {
+            background-color: #e65c00;
+        }
+        .login-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content" class="register_section">
+    <div class="container">
+        <div class="register_form">
+            <h2><i class="fa fa-user-plus mr-2"></i> Yeni Hesab Yarat</h2>
+
+            <form th:action="@{/register}" th:object="${registerDTO}" method="post">
+
+                <div th:if="${error}" class="alert alert-danger" role="alert">
+                    <i class="fa fa-exclamation-triangle"></i> <span th:text="${error}"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="name">Ad *</label>
+                    <input type="text" th:field="*{name}" class="form-control" id="name" placeholder="Adınızı daxil edin" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="surname">Soyad *</label>
+                    <input type="text" th:field="*{surname}" class="form-control" id="surname" placeholder="Soyadınızı daxil edin" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Adresi *</label>
+                    <input type="email" th:field="*{email}" class="form-control" id="email" placeholder="email@nümune.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Şifrə *</label>
+                    <input type="password" th:field="*{password}" class="form-control" id="password" placeholder="Şifrə daxil edin" required>
+                </div>
+
+                <button type="submit" class="btn btn-register mt-4">Qeydiyyatı Tamamla</button>
+            </form>
+
+            <a th:href="@{/login}" class="login-link">Artıq hesabınız var? **Daxil Olun**</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

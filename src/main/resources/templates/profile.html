@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+
+<head>
+    <title>Şəxsi Kabinet</title>
+</head>
+
+<main layout:fragment="content">
+    <section class="book_section layout_padding">
+        <div class="container">
+            <div class="heading_container">
+                <h2>
+                    Şəxsi Kabinet
+                </h2>
+            </div>
+            <div class="row">
+                <div class="col-md-8 mx-auto">
+                    <div class="detail-box" th:object="${user}">
+                        <h3>Xoş gəlmisiniz, <span th:text="*{firstName}">[User Adı]</span>!</h3>
+
+                        <p>Ad: <strong th:text="*{firstName}">[Ad]</strong></p>
+                        <p>Soyad: <strong th:text="*{lastName}">[Soyad]</strong></p>
+                        <p>Daxil olduğunuz email: <strong th:text="*{email}">user@example.com</strong></p>
+                        <hr>
+
+                        <h4>Profil Seçimləri</h4>
+
+                        <ul class="list-unstyled">
+                            <li><a th:href="@{/profile/edit}" style="color: #ff6600;">Şəxsi məlumatları dəyiş</a></li>
+                            <li><a th:href="@{/profile/password}" style="color: #ff6600;">Şifrəni dəyiş</a></li>
+                            <li><a th:href="@{/orders}" style="color: #ff6600;">Sifarişlərimin Siyahısı</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+</html>

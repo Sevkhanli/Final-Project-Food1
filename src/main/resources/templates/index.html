@@ -337,61 +337,123 @@
 
 
     <!-- client section -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-<section class="client_section layout_padding-bottom">
-    <div class="container">
-        <div class="heading_container heading_center psudo_white_primary mb_45">
-            <h2>
-                What Says Our Customers
-            </h2>
-        </div>
-        <div class="carousel-wrap row ">
-            <div class="owl-carousel client_owl-carousel">
-                <div class="item">
-                    <div class="box">
-                        <div class="detail-box">
-                            <p>
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam
-                            </p>
-                            <h6>
-                                Moana Michell
-                            </h6>
-                            <p>
-                                magna aliqua
-                            </p>
-                        </div>
-                        <div class="img-box">
-                            <img src="/front/images/client1.jpg" alt="" class="box-img">
+    <section class="testimonial-section layout_padding-bottom">
+        <div class="container">
+            <div class="header-container heading_center mb_45">
+                <p class="section-subtitle">Müştəri Rəyləri</p>
+                <h2 class="section-title">Onlar Bizim Haqqımızda Nə Deyir? </h2>
+            </div>
+
+            <div class="content-wrapper">
+                <div class="testimonial-slider-container">
+
+                    <div class="owl-carousel client_owl-carousel testimonials-list" id="testimonialList">
+
+                        <div th:each="t, iterStat : ${testimonials}" class="item">
+                            <div th:classappend="${iterStat.index == 0 ? 'active' : 'passive'}" class="testimonial-card">
+                                <p class="review-text" th:text="${t.comment}"></p>
+
+                                <div class="details">
+                                    <p class="customer-name" th:text="${t.customerName}"></p>
+                                    <p class="customer-location">Verified Customer</p>
+                                </div>
+
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="item">
-                    <div class="box">
-                        <div class="detail-box">
-                            <p>
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam
-                            </p>
-                            <h6>
-                                Mike Hamell
-                            </h6>
-                            <p>
-                                magna aliqua
-                            </p>
-                        </div>
-                        <div class="img-box">
-                            <img src="/front/images/client2.jpg" alt="" class="box-img">
-                        </div>
-                    </div>
+
+
+                <div class="feedback-form-container">
+                    <h3 class="form-title">Sizin Rəyiniz</h3>
+                    <form id="testimonialForm" th:action="@{/add-testimonial}" method="post" class="feedback-form">
+                        <input type="text" name="customerName" id="name" placeholder="Adınız" required>
+                        <textarea name="comment" id="comment" rows="5" placeholder="Rəyinizi yazın..." required></textarea>
+                        <button type="submit" class="send-button">Göndər</button>
+                    </form>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
+    <!-- end client section -->
 
-<!-- end client section -->
 
 
 </main>
+<script>
+    $(document).ready(function() {
+     var testimonialCarousel = $('.client_owl-carousel');
+
+     function updateActiveCard() {
+         testimonialCarousel.find('.testimonial-card').removeClass('active');
+
+         // Owl Carousel-un 'center' sinfini istifadə edərək aktiv kartı tapırıq
+         testimonialCarousel.find('.owl-item.active.center').find('.testimonial-card').addClass('active');
+
+         // Tək elementli görünüşlər üçün (məsələn, mobil)
+         if (testimonialCarousel.find('.owl-item.active.center').length === 0 && testimonialCarousel.find('.owl-item.active').length === 1) {
+             testimonialCarousel.find('.owl-item.active').eq(0).find('.testimonial-card').addClass('active');
+         }
+     }
+
+     testimonialCarousel.owlCarousel({
+         loop: true,
+         margin: 20,
+         nav: false, // ✅ Oxları deaktiv edirik
+         dots: true, // ✅ Nöqtələri aktiv edirik
+         responsive: {
+             0: { items: 1, center: true }, // Mobildə bir kart mərkəzdə
+             768: { items: 3, center: true } // Daha böyük ekranlarda 3 kart, ortadakı mərkəzdə
+         },
+         onInitialized: updateActiveCard,
+         onTranslated: updateActiveCard
+     });
+
+     $("#testimonialForm").on("submit", function(e) {
+         e.preventDefault();
+         let customerName = $("#name").val();
+         let comment = $("#comment").val();
+         let testimonial = { customerName: customerName, comment: comment };
+
+         fetch("/api/testimonials", {
+             method: "POST",
+             headers: { "Content-Type": "application/json" },
+             body: JSON.stringify(testimonial)
+         })
+         .then(res => {
+             if (!res.ok) { throw new Error("Server xətası: " + res.status); }
+             return res.json();
+         })
+         .then(data => {
+             let newReviewHtml = `
+                 <div class="item">
+                     <div class="testimonial-card">
+                         <p class="review-text">${data.comment}</p>
+                         <div class="details">
+                             <p class="customer-name">${data.customerName}</p>
+                             <p class="customer-location">Verified Customer</p>
+                         </div>
+                         </div>
+                 </div>`;
+
+             // Yeni elementi əlavə edib ən başa keçirik
+             testimonialCarousel.trigger('add.owl.carousel', [newReviewHtml, 0]).trigger('to.owl.carousel', [0, 300]);
+
+             // Carousel-i yeniləyirik və aktiv kartı yenidən təyin edirik
+             testimonialCarousel.trigger('refresh.owl.carousel');
+             setTimeout(updateActiveCard, 100); // Yeniləndikdən sonra aktiv kartı təyin et
+
+             $("#testimonialForm")[0].reset();
+             alert("Rəyiniz uğurla göndərildi!");
+         })
+         .catch(err => console.error("Rəy göndərilmədi:", err));
+     });
+ });
+</script>
+
 
 </body>
 </html>

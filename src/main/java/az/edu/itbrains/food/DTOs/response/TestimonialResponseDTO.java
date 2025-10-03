@@ -1,4 +1,4 @@
-package az.edu.itbrains.food.DTOs.request.UserDTO;
+package az.edu.itbrains.food.DTOs.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,8 +9,9 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserLoginDTO {
-    private String email;
-    private String password;
 
+public class TestimonialResponseDTO {
+    private Long id;
+    private String customerName;
+    private String comment;
 }

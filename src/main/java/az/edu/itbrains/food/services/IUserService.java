@@ -1,11 +1,10 @@
 package az.edu.itbrains.food.services;
 
-import az.edu.itbrains.food.DTOs.request.UserDTO.UserLoginDTO;
-import az.edu.itbrains.food.DTOs.request.UserDTO.UserRegisterDTO;
+import az.edu.itbrains.food.DTOs.request.UserDTO.RegisterDTO;
 import az.edu.itbrains.food.models.User;
 
 public interface IUserService {
-    User registerUser(UserRegisterDTO registerDTO);
+    User registerUser(RegisterDTO registerDTO);
 
     User findByEmail(String email);
 

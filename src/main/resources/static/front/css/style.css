@@ -1046,7 +1046,592 @@ a:focus {
     font-size: 26px;
     font-weight: 700;
 }
+/* Başlıq və Fontlar üçün (Məsələn, Google Fonts istifadə etdiyinizi fərz edirik) */
+/* Əgər bunu istifadə etmək istəsəniz, HTML-in head hissəsinə bu xətti əlavə edin:
+   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+*/
+
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    /* Fonu gradientlə daha canlı edirik */
+    background: linear-gradient(135deg, #f5f7fa 0%, #e3e8ee 100%);
+}
+
+/* Əsas Konteyner stilləri */
+.client_section {
+    padding: 70px 0;
+}
+
+.heading_center h2 {
+    /* Başlıq fontunu estetik edirik */
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    color: #4a4e69; /* Tünd, zərif rəng */
+    font-size: 2.5em;
+    text-align: center;
+    margin-bottom: 60px;
+    border-bottom: none; /* Alt xətti çıxarırıq */
+}
+
+/* Rəylər Siyahısı */
+.feedback-list {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    margin-bottom: 50px;
+}
+
+/* Hər bir rəy elementi - "Söz Balonu" effekti */
+.feedback-item {
+    background-color: #ffffff;
+    border: none;
+    padding: 25px;
+    border-radius: 12px; /* Daha yuvarlaq künclər */
+    /* Zərif Kölgə */
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+
+    position: relative; /* Köpük ucunu yaratmaq üçün */
+
+    transition: all 0.5s ease-out;
+    /* Üzərinə gəldikdə yüngül qalxma effekti */
+    cursor: default;
+}
+.feedback-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Köpük ucu (Speech Bubble Arrow) */
+.feedback-item::after {
+    content: '';
+    position: absolute;
+    bottom: -15px; /* Altda yerləşdirmək */
+    left: 40px;
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-top: 15px solid #ffffff; /* Ağ rəngdə üçbucaq */
+}
 
 
+.feedback-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed #e0e0e0; /* Zəif bir xətt */
+}
+
+.username {
+    font-weight: 700;
+    color: #5d5d81; /* Daha yumşaq mavi tonu */
+    font-size: 1.2em;
+}
+
+.date {
+    font-size: 0.85em;
+    color: #a0a0a0;
+}
+
+.comment-text {
+    color: #333333;
+    line-height: 1.7;
+    font-style: italic; /* Rəy mətnini kursiv edirik */
+}
+
+/* Yeni Rəy Forması Stili */
+.add-feedback {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.add-feedback h3 {
+    color: #4a4e69;
+    font-size: 1.5em;
+    margin-bottom: 25px;
+}
+
+.add-feedback input,
+.add-feedback textarea {
+    /* Bir qədər böyük inputlar */
+    padding: 14px;
+    border: 1px solid #c0c0c0;
+    border-radius: 8px;
+    transition: border-color 0.3s;
+}
+
+.add-feedback input:focus,
+.add-feedback textarea:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    outline: none;
+}
+
+.add-feedback button {
+    background-color: #007bff; /* Mavi rəng */
+    font-weight: bold;
+    padding: 12px 30px;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+}
+
+.add-feedback button:hover {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+}
+
+/* Yeni Əlavə Olunan Elementin Başlanğıc Stili (Animasiya Başlanğıcı) */
+.newly-added {
+    opacity: 0;
+    transform: translateY(-30px); /* Daha böyük hərəkət */
+    /* Yeni rəy üçün fərqli bir işıq (highlight) */
+    border: 2px solid #ffc107;
+    box-shadow: 0 0 20px rgba(255, 193, 7, 0.6);
+}
+
+/* Animasiya bitdikdən sonra sarı haşiyəni çıxarırıq (JS ilə) */
+.feedback-item:not(.newly-added-final) {
+    border: none; /* Normal vəziyyətdə haşiyə olmasın */
+}
+
+
+/* Başlığı zərif edək */
+.testimonials-section h2 {
+    font-family: 'Playfair Display', serif; /* Zərif bir şrift */
+    font-size: 2.5em;
+    color: #333; /* Daha yumşaq qara rəng */
+}
+
+/* Rəy qutusunun yeni stili */
+.testimonial-card {
+    background-color: #f7f7f7; /* Yüngül fon rəngi */
+    border-radius: 12px; /* Yuvarlaq künclər */
+    padding: 30px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Yüngül kölgə */
+    border-left: 5px solid #b8860b; /* Brend rəngində zolaq */
+    transition: transform 0.3s ease-in-out; /* Hərəkətə həssaslıq */
+}
+
+/* Üstünə gələndə qalxma effekti */
+.testimonial-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Rəy mətnini fərqləndirək */
+.testimonial-card p.review-text {
+    font-size: 1.1em;
+    font-style: italic;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+/* Müştəri adını vurğulayaq */
+.testimonial-card p.customer-name {
+    font-weight: bold;
+    color: #222;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/*======================================================*/
+/* YENİ ÜMUMİ STİLLƏR (style.css)             */
+/*======================================================*/
+
+/* Sizin mövcud layout_padding-bottom classını istifadə edir */
+.testimonial-section {
+    padding-top: 60px;
+    background-color: #f8f8f8;
+    text-align: center;
+    font-family: 'Poppins', sans-serif; /* Poppins şriftini əlavə etdiyinizdən əmin olun */
+}
+
+/* Başlıq Stili */
+.header-container {
+    margin-bottom: 40px;
+}
+
+.section-subtitle {
+    color: #003399; /* ✅ ƏSAS BREND RƏNGİ */
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.section-subtitle::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 3px;
+    background-color: #003399; /* ✅ ƏSAS BREND RƏNGİ */
+    margin: 5px auto 0;
+    border-radius: 5px;
+}
+
+.section-title {
+    font-size: 2.5em;
+    color: #333;
+    font-weight: 700;
+}
+
+/* Rəy və Formanı Yan-yana qoymaq üçün konteyner */
+.content-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Formanı yuxarıdan başlatsın */
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* --- Rəy Slayderi --- */
+.testimonial-slider-container {
+    position: relative;
+    width: 70%;
+    padding: 0 50px; /* Oxlar üçün yer */
+}
+
+/* Sizin mövcud Owl Carousel elementinə tətbiq olunur */
+.testimonials-list {
+    display: flex; /* Owl Carousel default olaraq bunu dəyişəcək */
+    gap: 20px;
+    padding: 20px 0; /* Kölgə və transform üçün əlavə yer */
+}
+
+/* --- Rəy Kartları --- */
+.testimonial-card {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.4s ease;
+    min-height: 250px; /* Görünüşü nizamlamaq üçün */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Aktiv (Mərkəzi) Rəy Kartı - GÖY RƏNG */
+.testimonial-card.active {
+    background-color: #003399; /* ✅ ƏSAS BREND RƏNGİ */
+    color: #fff;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    transform: scale(1.08); /* Mərkəzi rəyi vurğulayır */
+}
+
+.testimonial-card.active .review-text,
+.testimonial-card.active .customer-name,
+.testimonial-card.active .customer-location {
+    color: #fff;
+}
+
+/* Rəy Mətni */
+.review-text {
+    font-size: 1em;
+    line-height: 1.6;
+    color: #555;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+/* Ad və Yerləşmə */
+.customer-name {
+    font-weight: 700;
+    color: #333;
+    text-align: left;
+}
+
+.customer-location {
+    font-size: 0.8em;
+    color: #888;
+    text-align: left;
+    margin-bottom: 10px;
+}
+
+/* --- Ulduz Reytinqi --- */
+.rating {
+    margin-top: 10px;
+    text-align: left;
+}
+
+.rating .fas.fa-star {
+    color: #ffc107; /* Qızılı sarı */
+    font-size: 1.1em;
+}
+
+.rating .far.fa-star {
+    color: #ccc;
+    font-size: 1.1em;
+}
+/* Aktiv kartdakı ulduz rəngi */
+.testimonial-card.active .rating i {
+    color: #ffc107;
+}
+
+
+/* --- Oxlar (Naviqasiya) --- */
+/* Bu hissələr tam işləmək üçün Owl Carousel-un naviqasiya hissəsinin CSS-i ilə birləşməlidir. */
+/* İndilikdə, oxları konteyner kənarlarına yerləşdiririk. */
+.slider-arrows {
+    display: none; /* Oxların işləməsi üçün JS tələb olunur */
+}
+
+/* --- RƏY FORMASI STİLLARI --- */
+.feedback-form-container {
+    width: 30%;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    text-align: left;
+}
+
+.form-title {
+    color: #003399; /* ✅ ƏSAS BREND RƏNGİ */
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Input və Textarea */
+.feedback-form input[type="text"],
+.feedback-form textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: 1em;
+}
+
+.feedback-form input[type="text"]:focus,
+.feedback-form textarea:focus {
+    border-color: #003399; /* ✅ ƏSAS BREND RƏNGİ */
+    outline: none;
+}
+
+/* Göndər Düyməsi */
+.send-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #ffc107; /* ✅ VURĞU RƏNGİ (Sarı) */
+    color: #333;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.send-button:hover {
+    background-color: #e0a800;
+}
+/* Aktiv Kartın Kölgəsi: Daha çox dərinlik əlavə edirik */
+.testimonial-card.active {
+    background-color: #1B437C; /* Yeni premium mavi */
+    color: #fff;
+    /* Kölgəni gücləndirib, yüngülcə maviyə çalan rəng veririk */
+    box-shadow: 0 15px 30px rgba(27, 67, 124, 0.4);
+    transform: scale(1.1); /* Bir az daha böyüdülür */
+}
+.testimonial-card.active {
+    /* ... yuxarıdakı stillər ... */
+    position: relative;
+    overflow: hidden;
+}
+/* Kartın yuxarısından keçən qızılı zolaq */
+.testimonial-card.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background-color: #B8860B; /* Yeni qızılı rəng */
+}
+.feedback-form-container {
+    /* ... digər stillər ... */
+    border-radius: 16px; /* Daha çox yuvarlaq künc */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); /* Kölgəni yumşaldırıq */
+}
+
+/* Göndər düyməsi */
+.send-button {
+    background-color: #B8860B; /* Yeni qızılı rəng */
+    color: #fff; /* Ağ yazı rəngi ilə daha premium görünür */
+    font-weight: 600;
+}
+.send-button:hover {
+    background-color: #a0750a;
+}
+.slider-arrows {
+    display: none; /* Oxları tamamilə gizlədirik */
+}
+
+/* ========================================================== */
+/* OWL CAROUSEL NÖQTƏLƏRİ STİLLƏRİ               */
+/* ========================================================== */
+.owl-dots {
+    text-align: center;
+    margin-top: 30px; /* Rəylərdən aşağıda məsafə */
+}
+
+.owl-dot {
+    display: inline-block;
+    width: 12px; /* Dairənin ölçüsü */
+    height: 12px;
+    background-color: #ccc; /* Passiv nöqtə rəngi */
+    border-radius: 50%;
+    margin: 0 5px; /* Nöqtələr arasında məsafə */
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Rəng keçidi */
+    border: 1px solid #ccc; /* Kənar haşiyə əlavə edirik */
+}
+
+.owl-dot.active {
+    background-color: #1B437C; /* ✅ Aktiv nöqtənin rəngi (Tünd Dəniz Mavisi) */
+    border-color: #1B437C; /* Aktiv nöqtənin haşiyə rəngi */
+    transform: scale(1.2); /* Aktiv nöqtəni bir az böyüdürük */
+}
+
+/* Hover effekti */
+.owl-dot:hover {
+    background-color: #999;
+}
+.testimonial-card {
+    /* ... digər stillər ... */
+    min-height: 200px; /* ✅ Ulduzlar silindiyi üçün min-height azaldılır */
+}
+
+/* -------------------------------------------------------------------------------- */
+/* 1. KÖHNƏ OXLARI VƏ KARTLARIN ƏTRAFINDAKI BOŞ OXLARI GİZLƏDİRİK */
+/* -------------------------------------------------------------------------------- */
+.testimonial-section .owl-nav {
+    display: none !important; /* Ox naviqasiyasını tamamilə gizlədir */
+}
+
+/* Təqdim etdiyiniz şəkildə görünən qara ox simvolu (`< >`) adətən bu kitabxanadan gəlir,
+   onu da tamamilə gizlədirik. */
+.testimonial-section .content-wrapper .owl-carousel + div {
+    display: none;
+}
+
+
+/* -------------------------------------------------------------------------------- */
+/* 2. NÖQTƏLƏRİN (DOTS) ƏSAS STİLİ */
+/* -------------------------------------------------------------------------------- */
+
+/* Nöqtə container-i */
+.testimonial-section .owl-dots {
+    text-align: center;
+    margin-top: 30px;
+    line-height: 0; /* Boşluqları minimuma endirir */
+}
+
+/* Hər bir nöqtənin əsas divi */
+.testimonial-section .owl-dot {
+    display: inline-block;
+    margin: 0 5px;
+    padding: 0;
+    line-height: 0;
+}
+
+/* Nöqtənin içindəki "span" elementi (Dairə/Oval) */
+.testimonial-section .owl-dot span {
+    display: block;
+    width: 12px; /* Qeyri-aktiv nöqtənin ölçüsü (Dairə) */
+    height: 12px;
+    background: #fff; /* Daxili fon rəngi ağ */
+    border: 2px solid #36506B; /* Tünd mavi kənar (İstədiyiniz rəng) */
+    border-radius: 50%; /* Dairəvi forma */
+    transition: all 0.3s ease; /* Hamar keçid üçün */
+}
+
+/* -------------------------------------------------------------------------------- */
+/* 3. AKTİV NÖQTƏNİN STİLİ (DOLĞUN OVAL) */
+/* -------------------------------------------------------------------------------- */
+
+/* Aktiv nöqtə seçiləndə */
+.testimonial-section .owl-dot.active span,
+.testimonial-section .owl-dot:hover span {
+    width: 40px; /* Qeyri-aktivdən daha uzun edirik (Oval effekt) */
+    background: #36506B; /* Daxili fonu tünd mavi edirik */
+    border-color: #36506B; /* Kənarı da tünd mavi edirik */
+    border-radius: 20px; /* Oval forma üçün daha böyük border-radius */
+}
+
+
+/* -------------------------------------------------------------------------------- */
+/* NÖQTƏLƏRİN VƏ OVLARIN ƏSAS STİLİ */
+/* -------------------------------------------------------------------------------- */
+
+/* 1. Köhnə naviqasiyanı (oxları) gizlədirik */
+.testimonial-section .owl-nav {
+    display: none !important;
+}
+
+/* Nöqtə container-i (bütün nöqtələri mərkəzləşdirir) */
+.testimonial-section .owl-dots {
+    text-align: center !important;
+    margin-top: 30px !important;
+    display: block !important;
+}
+
+/* Hər bir fərdi nöqtə (Dot) */
+.testimonial-section .owl-dot {
+    display: inline-block !important;
+    margin: 0 5px !important; /* Nöqtələr arasında məsafə */
+    padding: 0 !important;
+}
+
+/* 2. Qeyri-aktiv Nöqtənin Daxili Elementi (Boş Dairə) */
+.testimonial-section .owl-dot span {
+    display: block !important;
+    width: 12px !important;
+    height: 12px !important;
+    background: transparent !important; /* Fon rəngi şəffaf */
+    border: 2px solid #36506B !important; /* Tünd mavi kənar */
+    border-radius: 50% !important; /* Dairəvi forma */
+    transition: all 0.3s ease !important; /* Hamar keçid */
+}
+
+/* 3. Aktiv Nöqtənin Stili (Dolğun Oval) */
+.testimonial-section .owl-dot.active span,
+.testimonial-section .owl-dot:hover span {
+    width: 40px !important; /* Qeyri-aktivdən daha uzun edirik (Oval effekt) */
+    background: #36506B !important; /* Tünd mavi dolğu */
+    border-color: #36506B !important;
+    border-radius: 20px !important; /* Oval forma üçün kifayət qədər böyük radius */
+}
+
+/* Email ünvanı uzun olsa belə, iki sətrə düşməsin */
+.user_option .user_info {
+    white-space: nowrap;
+    flex-shrink: 0;
+    /* margin-right-i silirəm, çünki bu, boşluq yaradır */
+    margin-right: 0 !important;
+}
+
+/* Çıxış linkini də qoruyuruq */
+.user_option a.user_link {
+    flex-shrink: 0;
+}
+
+/* Online Sifariş düyməsini qoruyur ki, kiçilməsin */
+.user_option .order_online {
+    flex-shrink: 0;
+    white-space: nowrap; /* Tək sətirdə qalmasını təmin edir */
+}
 
 /*# sourceMappingURL=style.css.map */

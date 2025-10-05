@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:sec="http://www.w3.org/1999/xhtml"
       layout:decorate="~{layout}">
 
 <head>
@@ -369,14 +369,38 @@
 
                 <div class="feedback-form-container">
                     <h3 class="form-title">Sizin Rəyiniz</h3>
-                    <form id="testimonialForm" th:action="@{/add-testimonial}" method="post" class="feedback-form">
-                        <input type="text" name="customerName" id="name" placeholder="Adınız" required>
-                        <textarea name="comment" id="comment" rows="5" placeholder="Rəyinizi yazın..." required></textarea>
-                        <button type="submit" class="send-button">Göndər</button>
-                    </form>
+
+                    <div sec:authorize="isAuthenticated()">
+                        <form th:action="@{/testimonials}" method="post" class="feedback-form" th:object="${newTestimonial}">
+
+                            <input type="text"
+                                   th:field="*{customerName}"
+                                   placeholder="Adınız"
+                                   required
+                                   class="form-control mb-3" />
+
+                            <textarea th:field="*{comment}"
+                                      rows="5"
+                                      placeholder="Rəyinizi yazın..."
+                                      required
+                                      class="form-control mb-3"></textarea>
+
+                            <button type="submit" class="send-button">Göndər</button>
+                        </form>
+                    </div>
+
+                    <div sec:authorize="!isAuthenticated()">
+                        <div class="feedback-form">
+                            <p class="mb-3 text-center" style="font-size: 1.1rem; color: #666;">
+                                Rəy bildirmək üçün daxil olmalısınız.
+                            </p>
+                            <a th:href="@{/login}" class="send-button"
+                               style="text-align: center; display: block; padding: 10px;">
+                                Daxil Olun
+                            </a>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
     </section>
     <!-- end client section -->
 

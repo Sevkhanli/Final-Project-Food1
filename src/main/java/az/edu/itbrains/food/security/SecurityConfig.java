@@ -1,4 +1,4 @@
-package az.edu.itbrains.food.config;
+package az.edu.itbrains.food.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,9 +24,16 @@ public class SecurityConfig {
         http
                 // Hansı URL-lərin icazəli olduğunu müəyyən edir
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/", "/register", "/login", "/front/**", "/css/**", "/js/**").permitAll() // Hər kəs üçün açıq
-                        .anyRequest().authenticated() // Qalan hər şeyi yalnız daxil olan istifadəçilər üçün bağlayır
-                )
+                .requestMatchers("/", "/register", "/login", "/front/**", "/menu", "/about",
+                        "/css/**", "/js/**"
+                ).permitAll() // Hər kəs üçün açıq
+
+                // Bu iki endpoint yalnız qeydiyyatdan keçmiş istifadəçilər üçündür.
+                .requestMatchers("/add-testimonial", "/api/testimonials").authenticated()
+
+                // Qalan bütün sorğular üçün də giriş tələb olunur.
+                .anyRequest().authenticated()
+        )
                 // Login konfiqurasiyası
                 .formLogin((form) -> form
                         .loginPage("/login") // Custom Login səhifəmizin yolu

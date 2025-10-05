@@ -65,7 +65,7 @@ public class HomeController {
 
 
 
-        List<TestimonialResponseDTO> testimonials = testimonialService.findAll();
+        List<TestimonialResponseDTO> testimonials = testimonialService.getAll();
         model.addAttribute("testimonials", testimonials);
         model.addAttribute("newTestimonial", new Testimonial());
         return "index";
@@ -80,19 +80,19 @@ public class HomeController {
         return "about";
     }
 
-    @PostMapping("/add-testimonial")
-    public String addTestimonial(@ModelAttribute Testimonial newTestimonial,
-                                 RedirectAttributes ra) {
-        testimonialService.save(newTestimonial);
-        ra.addFlashAttribute("success", "Rəy uğurla əlavə edildi!");
-        return "redirect:/";
-}
-    // ✅ Ajax üçün (sayt yenilənmədən JSON cavab qaytarır)
-    @PostMapping("/api/testimonials")
-    @ResponseBody
-    public TestimonialResponseDTO addTestimonialAjax(@RequestBody Testimonial newTestimonial) {
-        return modelMapper.map(testimonialService.save(newTestimonial), TestimonialResponseDTO.class);
-    }
+//    @PostMapping("/add-testimonial")
+//    public String addTestimonial(@ModelAttribute Testimonial newTestimonial,
+//                                 RedirectAttributes ra) {
+//        testimonialService.save(newTestimonial);
+//        ra.addFlashAttribute("success", "Rəy uğurla əlavə edildi!");
+//        return "redirect:/";
+//}
+//    // ✅ Ajax üçün (sayt yenilənmədən JSON cavab qaytarır)
+//    @PostMapping("/api/testimonials")
+//    @ResponseBody
+//    public TestimonialResponseDTO addTestimonialAjax(@RequestBody Testimonial newTestimonial) {
+//        return modelMapper.map(testimonialService.save(newTestimonial), TestimonialResponseDTO.class);
+//    }
 }
 
 

@@ -32,4 +32,8 @@ public class User {
     )
     private List<Role> roles = new ArrayList<>();
 
+    public String getFullName() {
+        return name + " " + surname;
+    }
+
 }

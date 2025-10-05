@@ -67,9 +67,12 @@
                             <span sec:authentication="name"></span>
                         </a>
 
-                        <a th:href="@{/logout}" class="user_link" title="Çıxış">
-                            <i class="fa fa-sign-out" aria-hidden="true"></i>
-                        </a>
+                        <form th:action="@{/logout}" method="post" style="display: inline;">
+                            <button type="submit" class="user_link" title="Çıxış"
+                                    style="border: none; background: none; cursor: pointer; padding: 0; margin: 0; color: white;">
+                                <i class="fa fa-sign-out" aria-hidden="true"></i>
+                            </button>
+                        </form>
                     </th:block>
 
                     <a class="cart_link" th:href="@{/cart}" style="position: relative;">

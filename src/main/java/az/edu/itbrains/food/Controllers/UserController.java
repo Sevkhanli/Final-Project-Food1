@@ -1,4 +1,4 @@
-package az.edu.itbrains.food.controllers;
+package az.edu.itbrains.food.Controllers;
 
 import az.edu.itbrains.food.DTOs.request.UserDTO.RegisterDTO;
 import az.edu.itbrains.food.services.IUserService; // Interfeysin adı
@@ -46,4 +46,5 @@ public class UserController {
             return "/register";
         }
     }
+
 }

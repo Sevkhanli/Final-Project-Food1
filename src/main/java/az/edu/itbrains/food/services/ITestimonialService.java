@@ -6,8 +6,9 @@ import az.edu.itbrains.food.models.Testimonial;
 import java.util.List;
 
 public interface ITestimonialService {
+    List<TestimonialResponseDTO> getAll();
 
-    Testimonial save(Testimonial testimonial);
+    // Yeni rəyi saxlamaq üçün
+    void save(Testimonial testimonial);
 
-    List<TestimonialResponseDTO> findAll();
 }

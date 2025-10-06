@@ -20,6 +20,12 @@ public class SpecialOffers {
     private String description;
     @Column(name = "discount_Percentage")
     private double discountPercentage;
+    // ...
     @Column(name = "image_url")
     private String imageUrl;
+    @Column(name = "menu_item_id_1") // Əsas məhsul ID-si
+    private Long menuItemId1;
+
+    @Column(name = "menu_item_id_2") // İkinci məhsul ID-si
+    private Long menuItemId2;
 }

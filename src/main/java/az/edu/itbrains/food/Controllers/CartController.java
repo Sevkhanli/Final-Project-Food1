@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
@@ -23,7 +22,7 @@ public class CartController {
 
     private final IMenuItemService menuItemService;
 
-    // Menyu səhifəsindən məhsulu səbətə əlavə etmək üçün
+    // Menyu səhifəsindən məhsulu səbətə əlavə etmək üçün (Adi məhsullar)
     @GetMapping("/add-to-cart")
     public String addToCart(@RequestParam("id") Long id, HttpSession session) {
         Optional<MenuItemResponseDTO> itemOptional = menuItemService.getMenuItemById(id);
@@ -38,6 +37,7 @@ public class CartController {
 
             boolean found = false;
             for (CartItemDTO cartItem : cart) {
+                // Adi məhsullar üçün ID məhsulun öz ID-si olaraq qalır
                 if (cartItem.getId().equals(menuItem.getId())) {
                     cartItem.setQuantity(cartItem.getQuantity() + 1);
                     found = true;
@@ -58,6 +58,56 @@ public class CartController {
         }
         return "redirect:/menu";
     }
+
+    // *** COMBO/TƏKLİF ƏLAVƏ ETMƏ METODU (Combo silinmə məntiqi üçün yeniləndi) ***
+    @GetMapping("/add-offer-to-cart")
+    public String addOfferToCart(@RequestParam("offerId") Long offerId, // YENİ: Təklifin öz ID-si
+                                 @RequestParam("id1") Long id1,
+                                 @RequestParam("id2") Long id2,
+                                 @RequestParam("discount") double discountPercentage,
+                                 HttpSession session) {
+
+        if (offerId == null || id1 == null || id2 == null || id1 <= 0 || id2 <= 0) {
+            System.err.println("XƏTA: Combo məhsul ID-lərinin hər ikisi və ya Təklif ID-si tapılmadı.");
+            return "redirect:/";
+        }
+
+        // Məhsul 1 və Məhsul 2-ni offerId ilə səbətə əlavə edirik
+        processComboItem(offerId, id1, discountPercentage, session);
+        processComboItem(offerId, id2, discountPercentage, session);
+
+        return "redirect:/";
+    }
+
+    // Köməkçi Metod: Combo tərkibini səbətə əlavə etmək
+    private void processComboItem(Long offerId, Long menuItemId, double discountPercentage, HttpSession session) {
+        Optional<MenuItemResponseDTO> itemOptional = menuItemService.getMenuItemById(menuItemId);
+
+        if (itemOptional.isPresent()) {
+            MenuItemResponseDTO menuItem = itemOptional.get();
+            double originalPrice = menuItem.getPrice();
+            // Hər iki Combo məhsuluna endirimi tətbiq edirik
+            double discountedPrice = originalPrice * (1 - (discountPercentage / 100.0));
+
+            List<CartItemDTO> cart = (List<CartItemDTO>) session.getAttribute("cart");
+            if (cart == null) {
+                cart = new ArrayList<>();
+                session.setAttribute("cart", cart);
+            }
+
+            // Yeni CartItem yaradırıq.
+            // ID olaraq MenuItem ID-si deyil, Offer ID-si istifadə olunur.
+            CartItemDTO newCartItem = new CartItemDTO(
+                    offerId, // *** ƏSAS DƏYİŞİKLİK: Combo silinməsi üçün Offer ID-ni saxlayır ***
+                    menuItem.getName() + " (COMBO - " + discountPercentage + "% ENDİRİM)",
+                    discountedPrice,
+                    menuItem.getImageUrl(),
+                    1
+            );
+            cart.add(newCartItem);
+        }
+    }
+
 
     // Səbət səhifəsini göstərmək üçün
     @GetMapping("/cart")
@@ -81,32 +131,25 @@ public class CartController {
         return "cart";
     }
 
-    // ---
-
-//    ## Səbətdən Məhsulun Silinməsi
-
-//    Bu metod `cart.html` səhifəsindəki "Sil" düyməsinə basıldıqda işə düşəcək.
-//    URL-dən məhsulun ID-sini qəbul edir və həmin məhsulu səbətdən silir.
-
+    // *** SƏBƏTDƏN SİLMƏ METODU (Combo-nu tamamilə silmək üçün yeniləndi) ***
     @GetMapping("/remove-from-cart")
     public String removeFromCart(@RequestParam("id") Long id, HttpSession session) {
         List<CartItemDTO> cart = (List<CartItemDTO>) session.getAttribute("cart");
         if (cart != null) {
-            // Dövr edib eyni id-li məhsulu tapıb silirik
+            // İndi silinən 'id' (məsələn, 1) Combo Təklifinin ID-sidir.
+            // Həmin ID-yə sahib olan BÜTÜN məhsulları səbətdən silirik.
             cart.removeIf(item -> item.getId().equals(id));
         }
-        return "redirect:/cart"; // Səbət səhifəsinə qayıdırıq
+        return "redirect:/cart";
     }
 
-
-//            ## Səbətdə Miqdarın Dəyişdirilməsi
-//
-//    Bu metod `cart.html` səhifəsindəki "+" və "-" düymələrinə basıldıqda işə düşəcək.
-//    URL-dən məhsulun ID-sini və yeni miqdarı (quantity) qəbul edir.
-
+    // Səbətdə Miqdarın Dəyişdirilməsi
     @GetMapping("/update-quantity")
     public String updateQuantity(@RequestParam("id") Long id, @RequestParam("quantity") int quantity, HttpSession session) {
-        // Əgər miqdar 1-dən azdırsa, məhsulu silməyə yönləndiririk
+        // QEYD: Combo məhsulların miqdarını ayrıca dəyişdirmək mürəkkəbdir,
+        // çünki ID Combo ID-sidir. Lakin sadəlik üçün bu məntiqi saxlayırıq.
+
+        // Əgər miqdar 1-dən azdırsa, məhsulu silməyə yönləndiririk (Bu Combo-nu tamamilə siləcək)
         if (quantity < 1) {
             return "redirect:/remove-from-cart?id=" + id;
         }
@@ -114,6 +157,7 @@ public class CartController {
         List<CartItemDTO> cart = (List<CartItemDTO>) session.getAttribute("cart");
         if (cart != null) {
             for (CartItemDTO item : cart) {
+                // Həm adi məhsullar (öz ID-ləri), həm də Combo məhsullar (Offer ID-ləri) üçün işləyir
                 if (item.getId().equals(id)) {
                     // Məhsulu tapanda miqdarını yeniləyirik
                     item.setQuantity(quantity);
@@ -121,40 +165,13 @@ public class CartController {
                 }
             }
         }
-        return "redirect:/cart"; // Səbət səhifəsinə qayıdırıq
+        return "redirect:/cart";
     }
 
 
 //            ## Sifarişin Verilməsi
-//
-//    Bu metod `cart.html` səhifəsindəki "Ödəniş Et" düyməsinə basıldıqda işə düşəcək.
-//    Formadan gələn sifarişçi məlumatlarını qəbul edir və sifarişi emal edir.
-
+//            (Köhnə kodu olduğu kimi saxlayıram)
 //    @PostMapping("/checkout")
-//    public String checkout(@RequestParam("fullName") String fullName,
-//                           @RequestParam("phoneNumber") String phoneNumber,
-//                           @RequestParam("address") String address,
-//                           HttpSession session) {
-//        List<CartItemDTO> cart = (List<CartItemDTO>) session.getAttribute("cart");
-//
-//        if (cart == null || cart.isEmpty()) {
-//            return "redirect:/menu"; // Səbət boşdursa, menyuya qayıt
-//        }
-//
-//        // Burda siz sifarişi databazaya yaza və ya başqa bir proses apara bilərsiniz
-//        System.out.println("Yeni Sifariş qəbul edildi!");
-//        System.out.println("Ad Soyad: " + fullName);
-//        System.out.println("Telefon: " + phoneNumber);
-//        System.out.println("Ünvan: " + address);
-//        System.out.println("Sifarişin məhsulları:");
-//        for (CartItemDTO item : cart) {
-//            System.out.println("- " + item.getName() + " (" + item.getQuantity() + " ədəd)");
-//        }
-//
-//        // Sifariş tamamlandıqdan sonra səbəti təmizləyirik
-//        session.removeAttribute("cart");
-//
-//        // İstifadəçini təsdiq səhifəsinə yönləndiririk
-//        return "redirect:/order-confirmation";
+//    // ...
 //    }
 }

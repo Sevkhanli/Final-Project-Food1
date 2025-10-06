@@ -5,6 +5,7 @@
 <head>
     <title>Səbətim</title>
     <style>
+        /* Mövcud stil kodlarınız olduğu kimi saxlanılıb */
         .cart-table table {
             width: 100%;
             border-collapse: collapse;
@@ -80,9 +81,10 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="cartItem : ${cartItems}">
+                    <tr th:each="cartItem, itemStat : ${cartItems}">
                         <td>
-                            <img th:src="${cartItem.image.startsWith('http') ? cartItem.image : '/front/images/' + cartItem.image}" style="width: 50px; height: 50px; border-radius: 50%; vertical-align: middle;">                            <span th:text="${cartItem.name}" style="margin-left: 10px;"></span>
+                            <img th:src="${cartItem.image.startsWith('http') ? cartItem.image : '/front/images/' + cartItem.image}" style="width: 50px; height: 50px; border-radius: 50%; vertical-align: middle;">
+                            <span th:text="${cartItem.name}" style="margin-left: 10px;"></span>
                         </td>
                         <td th:text="${#numbers.formatDecimal(cartItem.price, 1, 2)} + ' AZN'">0.00 AZN</td>
                         <td>
@@ -93,9 +95,18 @@
                             </div>
                         </td>
                         <td th:text="${#numbers.formatDecimal(cartItem.price * cartItem.quantity, 1, 2)} + ' AZN'">0.00 AZN</td>
+
                         <td>
-                            <a th:href="@{/remove-from-cart(id=${cartItem.id})}" style="color: red; text-decoration: none;">Sil</a>
+                            <th:block th:if="${cartItem.name.contains('COMBO')}">
+                                <th:block th:if="${itemStat.index % 2 == 0}">
+                                    <a th:href="@{/remove-from-cart(id=${cartItem.id})}" style="color: red; text-decoration: none;">Sil</a>
+                                </th:block>
+                            </th:block>
+                            <th:block th:unless="${cartItem.name.contains('COMBO')}">
+                                <a th:href="@{/remove-from-cart(id=${cartItem.id})}" style="color: red; text-decoration: none;">Sil</a>
+                            </th:block>
                         </td>
+
                     </tr>
                     <tr th:if="${cartItems == null or cartItems.isEmpty()}">
                         <td colspan="5" style="text-align: center; padding: 20px;">
@@ -105,7 +116,6 @@
                     </tbody>
                 </table>
             </div>
-
             <div class="cart-summary" th:if="${cartItems != null and !cartItems.isEmpty()}" style="text-align: right; font-size: 1.3em; margin-top: 20px;">
                 <h4>Səbətinizin Ümumi Qiyməti: <span th:text="${#numbers.formatDecimal(totalPrice, 1, 2)} + ' AZN'">0.00 AZN</span></h4>
             </div>

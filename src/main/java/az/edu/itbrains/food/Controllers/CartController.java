@@ -22,9 +22,9 @@ public class CartController {
 
     private final IMenuItemService menuItemService;
 
-    // Menyu səhifəsindən məhsulu səbətə əlavə etmək üçün (Adi məhsullar)
+    // *** DÜZƏLİŞ: Model əlavə edildi ki, səbət ölçüsü yenilənsin ***
     @GetMapping("/add-to-cart")
-    public String addToCart(@RequestParam("id") Long id, HttpSession session) {
+    public String addToCart(@RequestParam("id") Long id, HttpSession session, Model model) {
         Optional<MenuItemResponseDTO> itemOptional = menuItemService.getMenuItemById(id);
         if (itemOptional.isPresent()) {
             MenuItemResponseDTO menuItem = itemOptional.get();
@@ -37,7 +37,6 @@ public class CartController {
 
             boolean found = false;
             for (CartItemDTO cartItem : cart) {
-                // Adi məhsullar üçün ID məhsulun öz ID-si olaraq qalır
                 if (cartItem.getId().equals(menuItem.getId())) {
                     cartItem.setQuantity(cartItem.getQuantity() + 1);
                     found = true;
@@ -55,26 +54,36 @@ public class CartController {
                 );
                 cart.add(newCartItem);
             }
+
+            // Səbət ölçüsünü hesablayıb Modelə əlavə edirik (Navbar sayğacı üçün)
+            int cartSize = (cart != null) ? cart.stream().mapToInt(CartItemDTO::getQuantity).sum() : 0;
+            model.addAttribute("cartSize", cartSize);
         }
         return "redirect:/menu";
     }
 
-    // *** COMBO/TƏKLİF ƏLAVƏ ETMƏ METODU (Combo silinmə məntiqi üçün yeniləndi) ***
+    // *** DÜZƏLİŞ: Sayğac yenilənməsi üçün Model parametri istifadə olunur ***
     @GetMapping("/add-offer-to-cart")
-    public String addOfferToCart(@RequestParam("offerId") Long offerId, // YENİ: Təklifin öz ID-si
+    public String addOfferToCart(@RequestParam("offerId") Long offerId,
                                  @RequestParam("id1") Long id1,
                                  @RequestParam("id2") Long id2,
                                  @RequestParam("discount") double discountPercentage,
-                                 HttpSession session) {
+                                 HttpSession session,
+                                 Model model) {
 
         if (offerId == null || id1 == null || id2 == null || id1 <= 0 || id2 <= 0) {
             System.err.println("XƏTA: Combo məhsul ID-lərinin hər ikisi və ya Təklif ID-si tapılmadı.");
             return "redirect:/";
         }
 
-        // Məhsul 1 və Məhsul 2-ni offerId ilə səbətə əlavə edirik
+        // Combo-ya daxil olan iki məhsulu səbətə əlavə edirik
         processComboItem(offerId, id1, discountPercentage, session);
         processComboItem(offerId, id2, discountPercentage, session);
+
+        // Səbət ölçüsünü hesablayıb Modelə əlavə edirik (Navbar sayğacı üçün)
+        List<CartItemDTO> cart = (List<CartItemDTO>) session.getAttribute("cart");
+        int cartSize = (cart != null) ? cart.stream().mapToInt(CartItemDTO::getQuantity).sum() : 0;
+        model.addAttribute("cartSize", cartSize);
 
         return "redirect:/";
     }
@@ -86,7 +95,6 @@ public class CartController {
         if (itemOptional.isPresent()) {
             MenuItemResponseDTO menuItem = itemOptional.get();
             double originalPrice = menuItem.getPrice();
-            // Hər iki Combo məhsuluna endirimi tətbiq edirik
             double discountedPrice = originalPrice * (1 - (discountPercentage / 100.0));
 
             List<CartItemDTO> cart = (List<CartItemDTO>) session.getAttribute("cart");
@@ -95,10 +103,9 @@ public class CartController {
                 session.setAttribute("cart", cart);
             }
 
-            // Yeni CartItem yaradırıq.
-            // ID olaraq MenuItem ID-si deyil, Offer ID-si istifadə olunur.
+            // Combo elementlərinin eyni offerId ilə birləşdirilməsi
             CartItemDTO newCartItem = new CartItemDTO(
-                    offerId, // *** ƏSAS DƏYİŞİKLİK: Combo silinməsi üçün Offer ID-ni saxlayır ***
+                    offerId,
                     menuItem.getName() + " (COMBO - " + discountPercentage + "% ENDİRİM)",
                     discountedPrice,
                     menuItem.getImageUrl(),
@@ -107,7 +114,6 @@ public class CartController {
             cart.add(newCartItem);
         }
     }
-
 
     // Səbət səhifəsini göstərmək üçün
     @GetMapping("/cart")
@@ -131,47 +137,40 @@ public class CartController {
         return "cart";
     }
 
-    // *** SƏBƏTDƏN SİLMƏ METODU (Combo-nu tamamilə silmək üçün yeniləndi) ***
-    @GetMapping("/remove-from-cart")
-    public String removeFromCart(@RequestParam("id") Long id, HttpSession session) {
-        List<CartItemDTO> cart = (List<CartItemDTO>) session.getAttribute("cart");
-        if (cart != null) {
-            // İndi silinən 'id' (məsələn, 1) Combo Təklifinin ID-sidir.
-            // Həmin ID-yə sahib olan BÜTÜN məhsulları səbətdən silirik.
-            cart.removeIf(item -> item.getId().equals(id));
-        }
-        return "redirect:/cart";
-    }
-
-    // Səbətdə Miqdarın Dəyişdirilməsi
+    // YEKUN DÜZƏLİŞ: Combo paketlərinin miqdarını vahid olaraq idarə edən metod
     @GetMapping("/update-quantity")
     public String updateQuantity(@RequestParam("id") Long id, @RequestParam("quantity") int quantity, HttpSession session) {
-        // QEYD: Combo məhsulların miqdarını ayrıca dəyişdirmək mürəkkəbdir,
-        // çünki ID Combo ID-sidir. Lakin sadəlik üçün bu məntiqi saxlayırıq.
 
-        // Əgər miqdar 1-dən azdırsa, məhsulu silməyə yönləndiririk (Bu Combo-nu tamamilə siləcək)
+        // Miqdar 1-dən azdırsa, silməyə yönləndiririk. (Combo-nu tamamilə silir)
         if (quantity < 1) {
             return "redirect:/remove-from-cart?id=" + id;
         }
 
         List<CartItemDTO> cart = (List<CartItemDTO>) session.getAttribute("cart");
         if (cart != null) {
+
+            // Miqdarı dəyişmək istədiyimiz məhsulun Combo olub-olmadığını yoxlamağa ehtiyac yoxdur,
+            // çünki Combo elementləri eyni ID (Offer ID) altında qruplaşdırılıb.
+
+            // Eyni Offer ID-yə malik olan bütün elementlərin miqdarını dəyişirik.
+            // Bu, Combo-ya daxil olan bütün məhsulların eyni miqdarı daşımasını təmin edir.
             for (CartItemDTO item : cart) {
-                // Həm adi məhsullar (öz ID-ləri), həm də Combo məhsullar (Offer ID-ləri) üçün işləyir
                 if (item.getId().equals(id)) {
-                    // Məhsulu tapanda miqdarını yeniləyirik
                     item.setQuantity(quantity);
-                    break;
                 }
             }
         }
         return "redirect:/cart";
     }
 
-
-//            ## Sifarişin Verilməsi
-//            (Köhnə kodu olduğu kimi saxlayıram)
-//    @PostMapping("/checkout")
-//    // ...
-//    }
+    // SƏBƏTDƏN SİLMƏ METODU (Combo elementlərini eyni Offer ID ilə silir)
+    @GetMapping("/remove-from-cart")
+    public String removeFromCart(@RequestParam("id") Long id, HttpSession session) {
+        List<CartItemDTO> cart = (List<CartItemDTO>) session.getAttribute("cart");
+        if (cart != null) {
+            // Offer ID-yə (id) uyğun gələn bütün məhsulları silir
+            cart.removeIf(item -> item.getId().equals(id));
+        }
+        return "redirect:/cart";
+    }
 }

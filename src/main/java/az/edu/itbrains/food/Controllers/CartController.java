@@ -1,7 +1,9 @@
 package az.edu.itbrains.food.Controllers;
 
 import az.edu.itbrains.food.DTOs.CartItemDTO;
+import az.edu.itbrains.food.DTOs.request.OrderRequestDTO; // <<< Yeni DTO
 import az.edu.itbrains.food.DTOs.response.MenuItemResponseDTO;
+import az.edu.itbrains.food.services.ICartService;
 import az.edu.itbrains.food.services.IMenuItemService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,19 +22,18 @@ import java.util.Optional;
 public class CartController {
 
     private final IMenuItemService menuItemService;
+    private final ICartService cartService;
+    // Qeyd: IOrderService və IUserService bu Controller-dən silindi.
 
-    // *** DÜZƏLİŞ: Model əlavə edildi ki, səbət ölçüsü yenilənsin ***
+    // Adi məhsulu səbətə əlavə etmək (Mövcud məntiq qaldı)
     @GetMapping("/add-to-cart")
-    public String addToCart(@RequestParam("id") Long id, HttpSession session, Model model) {
+    public String addToCart(@RequestParam("id") Long id, HttpSession session) {
         Optional<MenuItemResponseDTO> itemOptional = menuItemService.getMenuItemById(id);
+
         if (itemOptional.isPresent()) {
             MenuItemResponseDTO menuItem = itemOptional.get();
 
-            List<CartItemDTO> cart = (List<CartItemDTO>) session.getAttribute("cart");
-            if (cart == null) {
-                cart = new ArrayList<>();
-                session.setAttribute("cart", cart);
-            }
+            List<CartItemDTO> cart = cartService.getCartItems(session);
 
             boolean found = false;
             for (CartItemDTO cartItem : cart) {
@@ -54,56 +54,40 @@ public class CartController {
                 );
                 cart.add(newCartItem);
             }
-
-            // Səbət ölçüsünü hesablayıb Modelə əlavə edirik (Navbar sayğacı üçün)
-            int cartSize = (cart != null) ? cart.stream().mapToInt(CartItemDTO::getQuantity).sum() : 0;
-            model.addAttribute("cartSize", cartSize);
+            session.setAttribute("cart", cart);
         }
         return "redirect:/menu";
     }
 
-    // *** DÜZƏLİŞ: Sayğac yenilənməsi üçün Model parametri istifadə olunur ***
+    // Təklifi (Combo) səbətə əlavə etmək (Mövcud məntiq qaldı)
     @GetMapping("/add-offer-to-cart")
     public String addOfferToCart(@RequestParam("offerId") Long offerId,
                                  @RequestParam("id1") Long id1,
                                  @RequestParam("id2") Long id2,
                                  @RequestParam("discount") double discountPercentage,
-                                 HttpSession session,
-                                 Model model) {
+                                 HttpSession session) {
 
         if (offerId == null || id1 == null || id2 == null || id1 <= 0 || id2 <= 0) {
             System.err.println("XƏTA: Combo məhsul ID-lərinin hər ikisi və ya Təklif ID-si tapılmadı.");
             return "redirect:/";
         }
 
-        // Combo-ya daxil olan iki məhsulu səbətə əlavə edirik
         processComboItem(offerId, id1, discountPercentage, session);
         processComboItem(offerId, id2, discountPercentage, session);
-
-        // Səbət ölçüsünü hesablayıb Modelə əlavə edirik (Navbar sayğacı üçün)
-        List<CartItemDTO> cart = (List<CartItemDTO>) session.getAttribute("cart");
-        int cartSize = (cart != null) ? cart.stream().mapToInt(CartItemDTO::getQuantity).sum() : 0;
-        model.addAttribute("cartSize", cartSize);
 
         return "redirect:/";
     }
 
-    // Köməkçi Metod: Combo tərkibini səbətə əlavə etmək
+    // Köməkçi Metod: Combo tərkibini səbətə əlavə etmək (Mövcud məntiq qaldı)
     private void processComboItem(Long offerId, Long menuItemId, double discountPercentage, HttpSession session) {
         Optional<MenuItemResponseDTO> itemOptional = menuItemService.getMenuItemById(menuItemId);
-
         if (itemOptional.isPresent()) {
             MenuItemResponseDTO menuItem = itemOptional.get();
             double originalPrice = menuItem.getPrice();
             double discountedPrice = originalPrice * (1 - (discountPercentage / 100.0));
 
-            List<CartItemDTO> cart = (List<CartItemDTO>) session.getAttribute("cart");
-            if (cart == null) {
-                cart = new ArrayList<>();
-                session.setAttribute("cart", cart);
-            }
+            List<CartItemDTO> cart = cartService.getCartItems(session);
 
-            // Combo elementlərinin eyni offerId ilə birləşdirilməsi
             CartItemDTO newCartItem = new CartItemDTO(
                     offerId,
                     menuItem.getName() + " (COMBO - " + discountPercentage + "% ENDİRİM)",
@@ -112,64 +96,56 @@ public class CartController {
                     1
             );
             cart.add(newCartItem);
+            session.setAttribute("cart", cart);
         }
     }
 
-    // Səbət səhifəsini göstərmək üçün
+    // Səbət səhifəsini göstərmək (Yalnız DTO adını düzəltdik)
     @GetMapping("/cart")
     public String viewCart(Model model, HttpSession session) {
-        List<CartItemDTO> cart = (List<CartItemDTO>) session.getAttribute("cart");
+        List<CartItemDTO> cart = cartService.getCartItems(session);
+
         model.addAttribute("cartItems", cart);
 
-        // Səbətin ümumi qiymətini hesablamaq
-        double totalPrice = 0.0;
-        if (cart != null) {
-            for (CartItemDTO item : cart) {
-                totalPrice += item.getPrice() * item.getQuantity();
-            }
-        }
+        double totalPrice = cartService.calculateTotalPrice(cart);
         model.addAttribute("totalPrice", totalPrice);
 
-        // Səbətdəki məhsulların ümumi sayını hesablamaq
-        int cartSize = (cart != null) ? cart.stream().mapToInt(CartItemDTO::getQuantity).sum() : 0;
+        int cartSize = cartService.calculateCartSize(cart);
         model.addAttribute("cartSize", cartSize);
+
+        // **Düzəliş:** Form üçün OrderRequestDTO-nu ötürürük
+        model.addAttribute("checkoutRequest", new OrderRequestDTO());
 
         return "cart";
     }
 
-    // YEKUN DÜZƏLİŞ: Combo paketlərinin miqdarını vahid olaraq idarə edən metod
+    // Miqdarı yeniləmək (Mövcud məntiq qaldı)
     @GetMapping("/update-quantity")
     public String updateQuantity(@RequestParam("id") Long id, @RequestParam("quantity") int quantity, HttpSession session) {
 
-        // Miqdar 1-dən azdırsa, silməyə yönləndiririk. (Combo-nu tamamilə silir)
         if (quantity < 1) {
             return "redirect:/remove-from-cart?id=" + id;
         }
 
-        List<CartItemDTO> cart = (List<CartItemDTO>) session.getAttribute("cart");
-        if (cart != null) {
-
-            // Miqdarı dəyişmək istədiyimiz məhsulun Combo olub-olmadığını yoxlamağa ehtiyac yoxdur,
-            // çünki Combo elementləri eyni ID (Offer ID) altında qruplaşdırılıb.
-
-            // Eyni Offer ID-yə malik olan bütün elementlərin miqdarını dəyişirik.
-            // Bu, Combo-ya daxil olan bütün məhsulların eyni miqdarı daşımasını təmin edir.
+        List<CartItemDTO> cart = cartService.getCartItems(session);
+        if (!cart.isEmpty()) {
             for (CartItemDTO item : cart) {
                 if (item.getId().equals(id)) {
                     item.setQuantity(quantity);
                 }
             }
+            session.setAttribute("cart", cart);
         }
         return "redirect:/cart";
     }
 
-    // SƏBƏTDƏN SİLMƏ METODU (Combo elementlərini eyni Offer ID ilə silir)
+    // Səbətdən silmək (Mövcud məntiq qaldı)
     @GetMapping("/remove-from-cart")
     public String removeFromCart(@RequestParam("id") Long id, HttpSession session) {
-        List<CartItemDTO> cart = (List<CartItemDTO>) session.getAttribute("cart");
-        if (cart != null) {
-            // Offer ID-yə (id) uyğun gələn bütün məhsulları silir
+        List<CartItemDTO> cart = cartService.getCartItems(session);
+        if (!cart.isEmpty()) {
             cart.removeIf(item -> item.getId().equals(id));
+            session.setAttribute("cart", cart);
         }
         return "redirect:/cart";
     }

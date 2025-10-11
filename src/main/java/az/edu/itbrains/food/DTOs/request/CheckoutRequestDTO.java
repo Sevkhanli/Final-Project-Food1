@@ -11,16 +11,19 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderRequestDTO {
+public class CheckoutRequestDTO {
 
-    @NotEmpty(message = "Ad və Soyad mütləqdir.")
+    // Ad və Soyad
+    @NotEmpty(message = "Ad və Soyad sahəsi boş ola bilməz.")
     @Size(min = 3, message = "Ad ən az 3 simvol olmalıdır.")
     private String fullName;
 
+    // Əlaqə Nömrəsi
     @NotEmpty(message = "Əlaqə Nömrəsi mütləqdir.")
-    private String phoneNumber; // Validation qaydaları buraya əlavə oluna bilər
+    private String phoneNumber;
 
-    @NotEmpty(message = "Ünvan mütləqdir.")
+    // Ünvan
+    @NotEmpty(message = "Ünvan sahəsi boş ola bilməz.")
     @Size(min = 5, message = "Ünvan ən az 5 simvol olmalıdır.")
     private String address;
 }

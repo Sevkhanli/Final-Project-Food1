@@ -67,4 +67,9 @@ public class UserServiceImpl implements IUserService {
         // Yoxdursa, findByEmail ilə yoxlamaq da olar:
         return userRepository.findByEmail(email) != null;
     }
+
+    @Override
+    public User findUserByUsername(String username) {
+        return userRepository.findByEmail(username);
+    }
 }

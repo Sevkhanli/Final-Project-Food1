@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="az" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Sifariş Uğurla Tamamlandı</title>
+    <style>
+        .success-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 600px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+        }
+
+        .success-card {
+            background: white;
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .checkmark {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 30px;
+            background-color: #4CAF50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: scaleIn 0.5s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .checkmark::after {
+            content: '✓';
+            font-size: 60px;
+            color: white;
+            font-weight: bold;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 32px;
+            margin: 20px 0;
+            font-weight: 700;
+        }
+
+        .order-id {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 30px 0;
+            font-size: 18px;
+            color: #555;
+            word-break: break-all;
+        }
+
+        .order-id strong {
+            color: #ff6600;
+            font-size: 20px;
+        }
+
+        .message {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 20px 0;
+        }
+
+        .order-details {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #666;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background-color: #ff6600;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #e55a00;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 102, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 2px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e8e8e8;
+            border-color: #ff6600;
+            color: #ff6600;
+        }
+
+        .info-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: #2e7d32;
+            font-size: 14px;
+        }
+
+        .delivery-time {
+            font-size: 18px;
+            color: #ff6600;
+            font-weight: 700;
+            margin: 15px 0;
+        }
+
+        @media (max-width: 600px) {
+            .success-card {
+                padding: 40px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="success-container">
+        <div class="success-card">
+            <div class="checkmark"></div>
+
+            <h1>Sifarişiniz Qəbul Edildi! 🎉</h1>
+
+            <p class="message">
+                Cəld və məzənnəli xidmətimiz üçün təşəkkür edirik!
+            </p>
+
+            <div class="order-id">
+                Sifariş ID: <strong th:text="${orderId} ?: 'N/A'">#4</strong>
+            </div>
+
+            <div class="delivery-time">
+                ⏱️ Təxmini Çatdırılma Müddəti: 30-45 dəqiqə
+            </div>
+
+            <div class="order-details">
+                <div class="detail-item">
+                    <span class="detail-label">📍 Çatdırılma Ünvanı:</span>
+                    <span class="detail-value" th:text="${address} ?: 'Yüklənir...'">Ünvan</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">📞 Əlaqə Nömrəsi:</span>
+                    <span class="detail-value" th:text="${phoneNumber} ?: 'Yüklənir...'">Nömrə</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">💰 Cəm Qiymət:</span>
+                    <span class="detail-value" th:text="${totalPrice} ?: '0' + ' AZN'">0 AZN</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">⏰ Sifariş Vaxtı:</span>
+                    <span class="detail-value" th:text="${#temporals.format(now, 'dd.MM.yyyy HH:mm')} ?: 'Yüklənir...'">Vaxt</span>
+                </div>
+            </div>
+
+            <div class="info-box">
+                ✓ Sifarişiniz hazırlanmağa başlayıb. Tezliklə sizinlə əlaqə saxlanacağıq!
+            </div>
+
+            <div class="buttons">
+                <a href="/" class="btn btn-primary">🏠 Ana Səhifəyə Qayıt</a>
+                <a href="/menu" class="btn btn-secondary">🍔 Daha Sifariş Ver</a>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

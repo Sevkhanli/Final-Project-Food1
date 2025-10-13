@@ -2,12 +2,14 @@ package az.edu.itbrains.food.Controllers;
 
 import az.edu.itbrains.food.DTOs.response.CategoryResponseDTO;
 import az.edu.itbrains.food.DTOs.response.MenuItemResponseDTO;
+import az.edu.itbrains.food.DTOs.response.RestaurantInfoResponseDTO;
 import az.edu.itbrains.food.DTOs.response.TestimonialResponseDTO;
 import az.edu.itbrains.food.models.SpecialOffers;
 import az.edu.itbrains.food.models.Testimonial;
 import az.edu.itbrains.food.repositories.SpecialOffersRepository;
 import az.edu.itbrains.food.services.ICategoryService;
 import az.edu.itbrains.food.services.IMenuItemService;
+import az.edu.itbrains.food.services.IRestaurantInfoService;
 import az.edu.itbrains.food.services.ITestimonialService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -27,6 +29,7 @@ public class HomeController {
     private final SpecialOffersRepository specialOffersRepository;
     private final ITestimonialService testimonialService;
     private final ModelMapper modelMapper;
+    private final IRestaurantInfoService restaurantInfoService;
 
 
 
@@ -34,6 +37,10 @@ public class HomeController {
     public String home(@RequestParam(required = false) Long categoryId,
                        @RequestParam(required = false, defaultValue = "false") boolean all,
                        Model model) {
+
+        RestaurantInfoResponseDTO restaurantInfo = restaurantInfoService.getRestaurantInfo(1L);
+        model.addAttribute("restaurantInfo", restaurantInfo);
+
 
         List<MenuItemResponseDTO> menuItemResponseDTOList;
 
@@ -64,7 +71,6 @@ public class HomeController {
 
 
 
-
         List<TestimonialResponseDTO> testimonials = testimonialService.getAll();
         model.addAttribute("testimonials", testimonials);
         model.addAttribute("newTestimonial", new Testimonial());
@@ -79,18 +85,17 @@ public class HomeController {
     public String about() {
         return "about";
     }
+    @GetMapping("/dashboard/restaurant")
+    public String adminRestaurant(Model model) {
+        RestaurantInfoResponseDTO info = restaurantInfoService.getRestaurantInfo(1L);
+        model.addAttribute("restaurantInfo", info);
+        return "dashboard/restaurant";
+    }
 
-//    @PostMapping("/add-testimonial")
-//    public String addTestimonial(@ModelAttribute Testimonial newTestimonial,
-//                                 RedirectAttributes ra) {
-//        testimonialService.save(newTestimonial);
-//        ra.addFlashAttribute("success", "Rəy uğurla əlavə edildi!");
-//        return "redirect:/";
-//}
-//    // ✅ Ajax üçün (sayt yenilənmədən JSON cavab qaytarır)
-//    @PostMapping("/api/testimonials")
-//    @ResponseBody
-//    public TestimonialResponseDTO addTestimonialAjax(@RequestBody Testimonial newTestimonial) {
-//        return modelMapper.map(testimonialService.save(newTestimonial), TestimonialResponseDTO.class);
-//    }
+    @PostMapping("/dashboard/restaurant/update")
+    public String updateRestaurant(RestaurantInfoResponseDTO dto) {
+        restaurantInfoService.updateRestaurantInfo(1L, dto);
+        return "redirect:/dashboard/restaurant";
+    }
+
 }

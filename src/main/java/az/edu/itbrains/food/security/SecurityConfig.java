@@ -25,13 +25,15 @@ public class SecurityConfig {
                 // Hansı URL-lərin icazəli olduğunu müəyyən edir
                 .authorizeHttpRequests((requests) -> requests
 
+                        // !!! YENİ QAYDA: DASHBOARD QORUMASI. Yalnız 'ROLE_ADMIN' girişi !!!
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+
                         // Hər kəs üçün açıq (Statik fayllar, Əsas Səhifələr və Uğur Səhifəsi)
                         .requestMatchers("/", "/register", "/login", "/front/**", "/menu", "/about",
-                                "/css/**", "/js/**", "/order-success" // <<< YENİ: Uğur səhifəsi açıqdır
+                                "/css/**", "/js/**", "/order-success"
                         ).permitAll()
 
                         // Sifariş endpoint-ləri daxil olmaqla, qeydiyyatdan keçmiş istifadəçilər üçündür
-                        // /checkout POST sorğusudur və yalnız authenticated user-lər üçün olmalıdır
                         .requestMatchers("/add-testimonial", "/api/testimonials", "/checkout").authenticated()
 
                         // Qalan bütün sorğular üçün də giriş tələb olunur.
@@ -39,16 +41,16 @@ public class SecurityConfig {
                 )
                 // Login konfiqurasiyası
                 .formLogin((form) -> form
-                        .loginPage("/login") // Custom Login səhifəmizin yolu
-                        .loginProcessingUrl("/login") // Formanın POST sorğusu göndərdiyi yer
-                        .defaultSuccessUrl("/") // Uğurlu girişdən sonra ana səhifəyə yönləndir
-                        .failureUrl("/login?error") // Uğursuz olduqda xəta mesajı ilə login-ə geri dön
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        .defaultSuccessUrl("/")
+                        .failureUrl("/login?error")
                         .permitAll()
                 )
                 // Logout konfiqurasiyası
                 .logout((logout) -> logout
-                        .logoutUrl("/logout") // Çıxış URL-i (Layout-da var idi)
-                        .logoutSuccessUrl("/") // Çıxışdan sonra ana səhifəyə yönləndir
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/")
                         .permitAll());
 
         return http.build();

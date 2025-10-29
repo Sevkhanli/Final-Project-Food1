@@ -29,4 +29,4 @@ public class MethodPermission {
     )
     private Set<Role> roles = new HashSet<>();
 
-}
+}       

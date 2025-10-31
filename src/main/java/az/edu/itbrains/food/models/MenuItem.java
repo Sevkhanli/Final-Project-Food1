@@ -20,6 +20,10 @@ public class MenuItem {
     private String description;
     private double price;
 
+
+    //TODO Aktivlik Statusu
+    @Column(name = "is_active")
+    private boolean isActive = true;
     @Column(name = "image_url")
     private String imageUrl;
     @ManyToOne

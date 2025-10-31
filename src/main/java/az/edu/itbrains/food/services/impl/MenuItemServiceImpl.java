@@ -46,4 +46,9 @@ public class MenuItemServiceImpl implements IMenuItemService {
         return menuItemRepository.findById(id)
                 .map(item -> modelMapper.map(item, MenuItemResponseDTO.class));
     }
+
+    @Override
+    public long countActiveMenuItems() {
+        return menuItemRepository.countByIsActiveTrue();
+    }
 }

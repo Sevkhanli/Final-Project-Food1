@@ -11,4 +11,6 @@ public interface MenuItemRepository extends JpaRepository<MenuItem,Long> {
     List<MenuItem> findByCategory_Id(Long categoryId);
     @Query(value = "SELECT * FROM menu_item LIMIT :limit", nativeQuery = true)
     List<MenuItem> findFirstN(@Param("limit") int limit);
+    // 🛑 YENİ METOD: Aktiv olan bütün MenuItem-lərin sayını hesablayır
+    long countByIsActiveTrue();
 }

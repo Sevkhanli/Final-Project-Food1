@@ -11,4 +11,6 @@ public interface IMenuItemService {
     List<MenuItemResponseDTO> getFirstNMenuItems(int limit);
     Optional<MenuItemResponseDTO> getMenuItemById(Long id);
 
+    long countActiveMenuItems();
+
 }

@@ -1,6 +1,7 @@
 package az.edu.itbrains.food.Controllers.Dashboard;
 
 import az.edu.itbrains.food.models.Order;
+import az.edu.itbrains.food.services.IMenuItemService;
 import az.edu.itbrains.food.services.IOrderService;
 import az.edu.itbrains.food.services.IUserService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ public class DashboardController {
 
     private final IUserService userService;
     private final IOrderService orderService;
+    private final IMenuItemService menuItemService;
 
     // İndi sadəcə /dashboard ünvanından işləyəcək
     @GetMapping("/dashboard")
@@ -35,8 +37,12 @@ public class DashboardController {
         long todayOrdersCount = orderService.countTodayOrders();
         model.addAttribute("todayOrdersCount", todayOrdersCount);
 
+        long activeMenuItemsCount = menuItemService.countActiveMenuItems();
+        model.addAttribute("activeProductCount", activeMenuItemsCount);
         List<Order> recentOrders = orderService.getRecentOrders(5);
         model.addAttribute("recentOrders", recentOrders); // HTML-ə göndərilir
+
+
 
         return "dashboard/index";
     }

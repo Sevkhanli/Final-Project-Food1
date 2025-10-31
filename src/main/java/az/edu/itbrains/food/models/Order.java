@@ -25,6 +25,10 @@ public class Order {
     @Column(name = "order_date")
     private LocalDateTime orderDate;
 
+    @Column(name = "order_status")
+    private String orderStatus; // "NEW", "PREPARING", "DELIVERED", "CANCELLED" kimi statuslar saxlanacaq
+
+
     @ManyToOne
     private User users;
 

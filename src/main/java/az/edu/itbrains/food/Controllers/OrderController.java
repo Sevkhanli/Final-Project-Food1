@@ -64,6 +64,7 @@ public class OrderController {
         order.setAddress(checkoutRequest.getAddress());
         order.setTotalPrice(cartService.calculateTotalPrice(cart));
         order.setOrderDate(LocalDateTime.now());
+        order.setOrderStatus("YENİ"); // <-- YENİ SİFARİŞƏ STATUS TƏYİNİ
 
         // ADIM 4: Cari istifadəçi kontrol edilir (Login olunmuşsa)
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -122,6 +123,7 @@ public class OrderController {
                     model.addAttribute("totalPrice", order.getTotalPrice());
                     model.addAttribute("fullName", order.getFullName());
                     model.addAttribute("now", order.getOrderDate());
+
                 }
             } catch (Exception e) {
                 System.err.println("Order tapmaq xətası: " + e.getMessage());

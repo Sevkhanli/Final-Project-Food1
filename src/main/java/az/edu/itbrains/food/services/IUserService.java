@@ -11,4 +11,6 @@ public interface IUserService {
     boolean existsByEmail(String email);
     User findUserByUsername(String username);
 
+
+    Long countAllUsers();    //TODO Dashboard üçün Ümumi İstifadəçi Sayını almaq
 }

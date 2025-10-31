@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="az" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{dashboard/layout}"> <th:block layout:fragment="page-header">
+      layout:decorate="~{dashboard/layout}">
+<th:block layout:fragment="page-header">
     <h1 class="mb-4">İdarə Paneli (Dashboard)</h1>
 </th:block>
 
@@ -42,6 +43,23 @@
         </div>
 
         <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card shadow border-start border-5" style="border-color: #555!important;">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col me-2">
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">ÜMUMİ İSTİFADƏÇİ SAYI</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800"
+                                 th:text="${totalUsers}">1500</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-people fa-2x text-secondary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-4">
             <div class="card shadow border-start border-5" style="border-color: #ff6600!important;">
                 <div class="card-body">
                     <div class="row align-items-center">
@@ -73,6 +91,7 @@
             </div>
         </div>
     </div>
+
     <div class="card shadow mb-4">
         <div class="card-header py-3 bg-light">
             <h6 class="m-0 font-weight-bold text-dark">Son 5 Sifariş</h6>
@@ -83,7 +102,7 @@
                     <thead class="bg-light">
                     <tr>
                         <th>ID</th>
-                        <th>Müştəri (Dummy)</th>
+                        <th>Müştəri</th>
                         <th>Tarix</th>
                         <th>Ümumi Məbləğ</th>
                         <th>Status</th>
@@ -91,28 +110,31 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:if="${recentOrders == null or #lists.isEmpty(recentOrders)}">
+
+                    <tr th:if="${#lists.isEmpty(recentOrders)}">
                         <td colspan="6" class="text-center text-muted py-4">
-                            Hal-hazırda funksionallıq aktiv deyil. Nümunə görünüş üçün statik sətirlər:
+                            Hal-hazırda sistemdə heç bir sifariş yoxdur.
                         </td>
                     </tr>
 
-                    <tr th:if="${recentOrders == null or #lists.isEmpty(recentOrders)}">
-                        <td>105</td>
-                        <td>Fatma Xəlilova</td>
-                        <td>29 Oct 2025 14:45</td>
-                        <td>32.00 AZN</td>
-                        <td><span class="badge bg-danger text-white p-2">YENİ</span></td>
-                        <td><a href="#" class="btn btn-sm btn-info text-white"><i class="bi bi-eye"></i> Bax</a></td>
+                    <tr th:each="order : ${recentOrders}">
+                        <td th:text="${order.id}">105</td>
+                        <td th:text="${order.fullName}">Fatma Xəlilova</td>
+                        <td th:text="${#temporals.format(order.orderDate, 'dd MMM yyyy HH:mm')}">29 Oct 2025 14:45</td>
+                        <td th:text="${#numbers.formatDecimal(order.totalPrice, 1, 'COMMA', 2, 'POINT') + ' AZN'}">32.00 AZN</td>
+
+                        <td>
+                            <span class="badge text-white p-2"
+                                  th:classappend="${order.orderStatus == 'TAMAMLANDI' ? 'bg-success' :
+                                                    (order.orderStatus == 'LƏĞV EDİLDİ' ? 'bg-danger' :
+                                                    (order.orderStatus == 'HAZIRLANIR' ? 'bg-warning' :
+                                                    'bg-info'))}"
+                                  th:text="${order.orderStatus}">YENİ</span>
+                        </td>
+
+                        <td><a th:href="@{'/admin/orders/' + ${order.id}}" class="btn btn-sm btn-info text-white"><i class="bi bi-eye"></i> Bax</a></td>
                     </tr>
-                    <tr th:if="${recentOrders == null or #lists.isEmpty(recentOrders)}">
-                        <td>104</td>
-                        <td>Rəsul Həsənov</td>
-                        <td>28 Oct 2025 11:30</td>
-                        <td>18.50 AZN</td>
-                        <td><span class="badge bg-success text-white p-2">TAMAMLANDI</span></td>
-                        <td><a href="#" class="btn btn-sm btn-info text-white"><i class="bi bi-eye"></i> Bax</a></td>
-                    </tr>
+
                     </tbody>
                 </table>
             </div>

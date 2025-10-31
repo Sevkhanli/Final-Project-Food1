@@ -72,4 +72,9 @@ public class UserServiceImpl implements IUserService {
     public User findUserByUsername(String username) {
         return userRepository.findByEmail(username);
     }
+
+    @Override
+    public Long countAllUsers() {
+        return userRepository.count();
+    }
 }

@@ -2,7 +2,16 @@ package az.edu.itbrains.food.services;
 
 import az.edu.itbrains.food.models.Order;
 
+import java.util.List;
+
 public interface IOrderService {
     Order saveOrder(Order order);
     Order getOrderById(Long orderId);
+
+
+    //TODO Dashboard üçün
+
+    long countTodayOrders();
+    double calculateTodayRevenue();
+    List<Order> getRecentOrders(int limit);
 }

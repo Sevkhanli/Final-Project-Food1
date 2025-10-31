@@ -1,212 +1,114 @@
 <!DOCTYPE html>
-<html lang="az" xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      xmlns:sec="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Tailwind CSS (CDN - Sadəcə nümunə üçün) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<html lang="az" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
-    <title layout:title-template="%s | FF Admin Dashboard">Dashboard</title>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title layout:title-pattern="$CONTENT_TITLE | FF Admin Panel">Admin Dashboard</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
-        /* Sidebar transition üçün */
+        :root {
+            --sidebar-width: 260px;
+            --ff-primary-color: #ff6600; /* Vurğu Rəngi (Narıncı) */
+            --ff-dark-color: #212529; /* Tünd (Sidebar) Rəngi */
+        }
         .sidebar {
-            transition: transform 0.3s ease-in-out;
-        }
-        /* Aktiv link üçün xüsusi rəng */
-        .nav-link.active {
-            background-color: #e65c00; /* Brend rənginin tündü */
+            width: var(--sidebar-width);
+            background-color: var(--ff-dark-color);
             color: white;
-            box-shadow: 0 4px 6px -1px rgba(255, 102, 0, 0.3), 0 2px 4px -2px rgba(255, 102, 0, 0.3);
+            position: fixed;
+            height: 100%;
+            padding-top: 20px;
+            transition: all 0.3s;
+            z-index: 1000;
         }
-        /* Responsivlik üçün overlay */
-        .overlay {
-            z-index: 40;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease-in-out;
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 30px;
+            transition: all 0.3s;
+            min-height: 100vh;
         }
-        .overlay.active {
-            opacity: 1;
-            pointer-events: auto;
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.75);
+            padding: 12px 20px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        /* Controller-dəki 'currentUri' modelini yoxlayaraq aktiv klassı təyin edir */
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background-color: var(--ff-primary-color);
+            border-radius: 5px;
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+        }
+        .ff-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--ff-primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+            display: block;
         }
     </style>
 </head>
-<body class="bg-gray-100 flex h-screen overflow-hidden">
 
-<!-- Overlay for mobile (when sidebar is open) -->
-<div id="overlay" class="overlay fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
-
-<!-- Sidebar -->
-<aside id="sidebar" class="sidebar fixed z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out
-                       w-64 bg-gray-900 h-full flex flex-col shadow-xl">
-    <!-- Logo -->
-    <div class="p-6 flex items-center justify-center border-b border-gray-800">
-        <h1 class="text-2xl font-bold text-white text-center">
-            FF <span class="text-orange-500">Admin</span>
-        </h1>
-    </div>
-
-    <!-- Navigation -->
-    <nav class="flex-grow p-4">
-        <ul class="space-y-2">
-            <!-- Dashboard -->
-            <li>
-                <a th:href="@{/dashboard}" class="nav-link flex items-center p-3 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white"
-                   th:classappend="${#httpServletRequest.requestURI == '/dashboard' ? 'active' : ''}">
-                    <i class="fas fa-home mr-3 text-lg"></i>
-                    <span class="font-medium">Dashboard</span>
-                </a>
-            </li>
-
-            <!-- Content Management (Menyu) -->
-            <li class="pt-4 border-t border-gray-800">
-                <p class="text-xs font-semibold uppercase text-gray-500 ml-3 mb-2">Məzmun İdarəetməsi</p>
-            </li>
-            <li>
-                <a th:href="@{/dashboard/categories}" class="nav-link flex items-center p-3 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white"
-                   th:classappend="${#httpServletRequest.requestURI.startsWith('/dashboard/categories') ? 'active' : ''}">
-                    <i class="fas fa-tags mr-3 text-lg"></i>
-                    <span class="font-medium">Kateqoriyalar</span>
-                </a>
-            </li>
-            <li>
-                <a th:href="@{/dashboard/menu-items}" class="nav-link flex items-center p-3 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white"
-                   th:classappend="${#httpServletRequest.requestURI.startsWith('/dashboard/menu-items') ? 'active' : ''}">
-                    <i class="fas fa-utensils mr-3 text-lg"></i>
-                    <span class="font-medium">Menyu Məhsulları</span>
-                </a>
-            </li>
-
-            <!-- Orders & Users -->
-            <li class="pt-4 border-t border-gray-800">
-                <p class="text-xs font-semibold uppercase text-gray-500 ml-3 mb-2">Əməliyyatlar</p>
-            </li>
-            <li>
-                <a th:href="@{/dashboard/orders}" class="nav-link flex items-center p-3 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white"
-                   th:classappend="${#httpServletRequest.requestURI.startsWith('/dashboard/orders') ? 'active' : ''}">
-                    <i class="fas fa-clipboard-list mr-3 text-lg"></i>
-                    <span class="font-medium">Sifarişlər</span>
-                    <!-- Yeni sifariş sayı (nümunə) -->
-                    <span class="ml-auto text-xs font-bold bg-red-600 text-white rounded-full px-2 py-0.5">3 Yeni</span>
-                </a>
-            </li>
-            <li>
-                <a th:href="@{/dashboard/users}" class="nav-link flex items-center p-3 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white"
-                   th:classappend="${#httpServletRequest.requestURI.startsWith('/dashboard/users') ? 'active' : ''}">
-                    <i class="fas fa-users mr-3 text-lg"></i>
-                    <span class="font-medium">İstifadəçilər</span>
-                </a>
-            </li>
-
-            <!-- Settings/Logout -->
-            <li class="pt-4 border-t border-gray-800">
-                <p class="text-xs font-semibold uppercase text-gray-500 ml-3 mb-2">Sistem</p>
-            </li>
-            <li>
-                <form th:action="@{/logout}" method="post" class="w-full">
-                    <button type="submit" class="flex items-center p-3 text-red-400 rounded-lg w-full text-left hover:bg-gray-800 hover:text-red-300">
-                        <i class="fas fa-sign-out-alt mr-3 text-lg"></i>
-                        <span class="font-medium">Çıxış</span>
-                    </button>
-                </form>
-            </li>
-        </ul>
-    </nav>
-
-    <!-- Sidebar Footer -->
-    <div class="p-4 text-center text-xs text-gray-500 border-t border-gray-800">
-        &copy; <span th:text="${#dates.year(#dates.createNow())}">2023</span> FF Restaurant Admin.
-    </div>
-
+<body>
+<aside class="sidebar">
+    <a href="/dashboard" class="ff-logo">🍔 FF Admin</a>
+    <ul class="nav flex-column px-3">
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/dashboard}"
+               th:classappend="${currentUri.equals('/dashboard') ? 'active' : ''}">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/products}"
+               th:classappend="${currentUri.startsWith('/products') ? 'active' : ''}">
+                <i class="bi bi-basket"></i> Məhsullar
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/orders}"
+               th:classappend="${currentUri.startsWith('/orders') ? 'active' : ''}">
+                <i class="bi bi-receipt"></i> Sifarişlər
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/users}"
+               th:classappend="${currentUri.startsWith('/users') ? 'active' : ''}">
+                <i class="bi bi-people"></i> İstifadəçilər
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/reports}"
+               th:classappend="${currentUri.startsWith('/reports') ? 'active' : ''}">
+                <i class="bi bi-bar-chart-line"></i> Hesabatlar
+            </a>
+        </li>
+        <li class="nav-item mt-5">
+            <a class="nav-link" th:href="@{/}">
+                <i class="bi bi-box-arrow-left"></i> Sayta Qayıt
+            </a>
+        </li>
+    </ul>
 </aside>
 
-<!-- Main Content Area -->
-<div class="flex-1 flex flex-col transition-all duration-300 md:ml-64">
-    <!-- Header/Top Nav -->
-    <header class="bg-white shadow-md flex items-center justify-between p-4 sticky top-0 z-30">
-        <!-- Mobile Menu Button -->
-        <button id="sidebarToggle" class="text-gray-600 hover:text-orange-500 md:hidden p-2 rounded-lg">
-            <i class="fas fa-bars text-xl"></i>
-        </button>
+<div class="main-content">
+    <h1 class="mb-4" layout:fragment="page-header">Dashboard</h1>
 
-        <!-- Page Title -->
-        <h2 class="text-xl font-semibold text-gray-800" layout:title>Dashboard Ana Səhifə</h2>
+    <div layout:fragment="content">
+    </div>
 
-        <!-- User Profile/Settings -->
-        <div class="flex items-center space-x-4">
-            <span class="text-gray-700 hidden sm:inline" sec:authentication="name">Admin User</span>
-            <div class="h-10 w-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">A</div>
-        </div>
-    </header>
-
-    <!-- Page Content (Dynamic Content) -->
-    <main class="flex-1 p-6 overflow-y-auto">
-        <div layout:fragment="content" class="h-full">
-            <!-- Dynamic page content will be placed here -->
-            <div class="bg-white p-8 rounded-lg shadow-lg">
-                <h3 class="text-2xl font-bold text-gray-700">Xoş Gəlmisiniz!</h3>
-                <p class="mt-2 text-gray-500">Bu, layautun əsas məzmun yeridir.</p>
-            </div>
-        </div>
-    </main>
-
+    <footer class="mt-5 pt-3 border-top text-center text-muted">
+        <p>&copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2025</span> FF Restaurant Admin Panel.</p>
+    </footer>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const sidebar = document.getElementById('sidebar');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const overlay = document.getElementById('overlay');
-        const mainContent = document.querySelector('body > div.flex-1');
-        const isMobile = window.innerWidth < 768;
-
-        // Mobil cihazlarda sidebar-ı gizlət
-        if (isMobile) {
-            sidebar.classList.add('-translate-x-full');
-            mainContent.classList.remove('md:ml-64');
-        }
-
-        // Sidebarı açma/bağlama funksiyası
-        const toggleSidebar = () => {
-            const isHidden = sidebar.classList.contains('-translate-x-full');
-
-            if (isHidden) {
-                // Aç
-                sidebar.classList.remove('-translate-x-full');
-                overlay.classList.add('active');
-                overlay.classList.remove('hidden');
-            } else {
-                // Bağla
-                sidebar.classList.add('-translate-x-full');
-                overlay.classList.remove('active');
-                // Timeout verməyə ehtiyac yoxdur, çünki overlay-ın pointer-events avtomatik dəyişir
-            }
-        };
-
-        sidebarToggle.addEventListener('click', toggleSidebar);
-        overlay.addEventListener('click', toggleSidebar);
-
-        // Resize zamanı mobil və desktop rejimini idarə et
-        window.addEventListener('resize', () => {
-            if (window.innerWidth >= 768) {
-                // Desktop
-                sidebar.classList.remove('-translate-x-full');
-                overlay.classList.remove('active', 'hidden');
-                mainContent.classList.add('md:ml-64');
-            } else {
-                // Mobile
-                sidebar.classList.add('-translate-x-full');
-                overlay.classList.add('hidden');
-                mainContent.classList.remove('md:ml-64');
-            }
-        });
-    });
-</script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

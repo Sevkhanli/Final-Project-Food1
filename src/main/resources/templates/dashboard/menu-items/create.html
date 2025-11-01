@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="az" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{dashboard/layout}">
+<th:block layout:fragment="page-header">
+    <h1 class="mb-4">Yeni Məhsul Əlavə Et</h1>
+</th:block>
+
+<div layout:fragment="content">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-dark">Məhsul Məlumatları</h6>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/admin/menu-items/create}" th:object="${menuItem}" method="post">
+
+                <div class="mb-3">
+                    <label for="name" class="form-label">Məhsulun Adı</label>
+                    <input type="text" th:field="*{name}" id="name" class="form-control"
+                           th:classappend="${#fields.hasErrors('name') ? 'is-invalid' : ''}" required>
+                    <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="invalid-feedback"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="price" class="form-label">Qiymət (AZN)</label>
+                    <input type="number" th:field="*{price}" id="price" class="form-control" step="0.01"
+                           th:classappend="${#fields.hasErrors('price') ? 'is-invalid' : ''}" required>
+                    <div th:if="${#fields.hasErrors('price')}" th:errors="*{price}" class="invalid-feedback"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="categoryId" class="form-label">Kateqoriya</label>
+                    <select th:field="*{categoryId}" id="categoryId" class="form-control"
+                            th:classappend="${#fields.hasErrors('categoryId') ? 'is-invalid' : ''}" required>
+                        <option value="">-- Kateqoriya Seçin --</option>
+
+                        <option th:each="category : ${categories}"
+                                th:value="${category.id}"
+                                th:text="${category.name}">Fast Food</option>
+
+                    </select>
+                    <div th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}" class="invalid-feedback"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Təsvir</label>
+                    <textarea th:field="*{description}" id="description" class="form-control" rows="3"
+                              th:classappend="${#fields.hasErrors('description') ? 'is-invalid' : ''}" required></textarea>
+                    <div th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="invalid-feedback"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="imageUrl" class="form-label">Şəkil URL-i</label>
+                    <input type="url" th:field="*{imageUrl}" id="imageUrl" class="form-control"
+                           th:classappend="${#fields.hasErrors('imageUrl') ? 'is-invalid' : ''}" required>
+                    <div th:if="${#fields.hasErrors('imageUrl')}" th:errors="*{imageUrl}" class="invalid-feedback"></div>
+                </div>
+
+                <div class="form-check mb-4">
+                    <input type="checkbox" th:field="*{isActive}" id="isActive" class="form-check-input">
+                    <label for="isActive" class="form-check-label">Aktiv</label>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <a th:href="@{/admin/menu-items}" class="btn btn-secondary me-2">Geri</a>
+                    <button type="submit" class="btn btn-primary">Yadda Saxla</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</html>

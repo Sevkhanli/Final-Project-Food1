@@ -12,43 +12,37 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // 1. PasswordEncoder təyin etmək
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // 2. Təhlükəsizlik Qaydaları
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Hansı URL-lərin icazəli olduğunu müəyyən edir
-                .authorizeHttpRequests((requests) -> requests
+                .authorizeHttpRequests(auth -> auth
+                        // ADMIN-lər üçün dashboard və admin panel icazəsi
+                        .requestMatchers("/admin/**", "/dashboard/**").hasRole("ADMIN")
 
-                        // !!! YENİ QAYDA: DASHBOARD QORUMASI. Yalnız 'ROLE_ADMIN' girişi !!!
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-
-                        // Hər kəs üçün açıq (Statik fayllar, Əsas Səhifələr və Uğur Səhifəsi)
+                        // Qeydiyyat və login açıq olsun
                         .requestMatchers("/", "/register", "/login", "/front/**", "/menu", "/about",
                                 "/css/**", "/js/**", "/order-success"
                         ).permitAll()
 
-                        // Sifariş endpoint-ləri daxil olmaqla, qeydiyyatdan keçmiş istifadəçilər üçündür
+                        // İstifadəçi üçün qorunan endpoint-lər
                         .requestMatchers("/add-testimonial", "/api/testimonials", "/checkout").authenticated()
 
-                        // Qalan bütün sorğular üçün də giriş tələb olunur.
+                        // Qalan hər şey giriş tələb edir
                         .anyRequest().authenticated()
                 )
-                // Login konfiqurasiyası
-                .formLogin((form) -> form
+                .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
                         .defaultSuccessUrl("/")
                         .failureUrl("/login?error")
                         .permitAll()
                 )
-                // Logout konfiqurasiyası
-                .logout((logout) -> logout
+                .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/")
                         .permitAll());

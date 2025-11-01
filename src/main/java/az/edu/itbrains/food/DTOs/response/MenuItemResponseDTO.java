@@ -16,6 +16,7 @@ public class MenuItemResponseDTO {
     private String name;
     private String description;
     private double price;
+    private Boolean isActive;
     private String imageUrl;
     private String category;
 }

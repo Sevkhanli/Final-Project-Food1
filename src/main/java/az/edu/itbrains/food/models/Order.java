@@ -32,7 +32,7 @@ public class Order {
     @ManyToOne
     private User users;
 
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems;
     @Column(name = "full_name")
     private String fullName;

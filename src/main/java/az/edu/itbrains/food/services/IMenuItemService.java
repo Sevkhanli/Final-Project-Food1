@@ -1,6 +1,8 @@
 package az.edu.itbrains.food.services;
 
+import az.edu.itbrains.food.DTOs.DashboardDTO.MenuItemCreateDTO;
 import az.edu.itbrains.food.DTOs.response.MenuItemResponseDTO;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,4 +15,5 @@ public interface IMenuItemService {
 
     long countActiveMenuItems();
 
+    void createMenuItem(MenuItemCreateDTO menuItemCreateDTO);
 }

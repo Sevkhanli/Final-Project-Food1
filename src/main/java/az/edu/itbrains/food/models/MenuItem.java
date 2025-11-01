@@ -29,7 +29,7 @@ public class MenuItem {
     @ManyToOne
     @JoinColumn(name = "category_id") // bu olmadan da işləyə bilər, amma daha aydın olur
     private Category category;
-
+    private Boolean active; // Və ya boolean active;
 
 
 }

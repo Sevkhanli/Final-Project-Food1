@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="az" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{dashboard/layout}">
+<th:block layout:fragment="page-header">
+    <h1 class="mb-4">Yemək Menyu Məhsulları</h1>
+</th:block>
+
+<div layout:fragment="content">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-dark">Bütün Məhsullar</h6>
+            <a th:href="@{/admin/menu-items/create}" class="btn btn-success btn-sm"><i class="bi bi-plus-lg"></i> Yeni Məhsul Əlavə Et</a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead class="bg-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Şəkil</th>
+                        <th>Ad</th>
+                        <th>Təsvir</th>
+                        <th>Qiymət</th>
+                        <th>Kateqoriya</th>
+                        <th>Status</th>
+                        <th>Əməliyyatlar</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    <tr th:if="${#lists.isEmpty(menuItems)}">
+                        <td colspan="8" class="text-center text-muted py-4">
+                            Sistemdə hələ heç bir məhsul yoxdur.
+                        </td>
+                    </tr>
+
+                    <tr th:each="item : ${menuItems}">
+                        <td th:text="${item.id}">1</td>
+                        <td>
+                            <img th:src="@{${item.imageUrl}}" alt="Məhsul Şəkli" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                        </td>
+                        <td th:text="${item.name}">Hamburger Menu</td>
+                        <td th:text="${#strings.substring(item.description, 0, #strings.length(item.description) > 30 ? 30 : #strings.length(item.description)) + (#strings.length(item.description) > 30 ? '...' : '')}">Əla Təam...</td>
+                        <td th:text="${#numbers.formatDecimal(item.price, 1, 'COMMA', 2, 'POINT') + ' AZN'}">3.90 AZN</td>
+
+                        <td th:text="${item.category}">Fast Food</td>
+
+                        <td>
+                            <span class="badge p-2"
+                                  th:classappend="${item.isActive ? 'bg-success' : 'bg-danger'}"
+                                  th:text="${item.isActive ? 'Aktiv' : 'Passiv'}">Aktiv</span>
+                        </td>
+
+                        <td>
+                            <a th:href="@{'/admin/menu-items/edit/' + ${item.id}}" class="btn btn-warning btn-sm text-white me-1"><i class="bi bi-pencil"></i></a>
+                            <a th:href="@{'/admin/menu-items/delete/' + ${item.id}}" class="btn btn-danger btn-sm" onclick="return confirm('Əminsinizmi?')"><i class="bi bi-trash"></i></a>
+                        </td>
+                    </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

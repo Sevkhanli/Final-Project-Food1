@@ -1,13 +1,11 @@
 package az.edu.itbrains.food.services.impl;
 
 import az.edu.itbrains.food.DTOs.request.UserDTO.RegisterDTO;
+import az.edu.itbrains.food.models.Role;
 import az.edu.itbrains.food.models.User;
+import az.edu.itbrains.food.repositories.RoleRepository;
 import az.edu.itbrains.food.repositories.UserRepository;
 import az.edu.itbrains.food.services.IUserService;
-
-// Custom Exception class-ı yaradacağınızı fərz edirik
-// import az.edu.itbrains.food.exceptions.UserAlreadyExistsException;
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -20,51 +18,42 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements IUserService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
 
-    // ROL üçün müəyyən bir enum və ya constant olduğunu fərz edirik (Məsələn: Role.USER)
-    // private final Role defaultRole;
-
     @Override
     public User registerUser(RegisterDTO registerDTO) {
-
-        // 1. Email-in artıq istifadə olunub-olunmadığını yoxlamaq
+        // 1. Email artıq mövcuddursa, istisna at
         if (userRepository.findByEmail(registerDTO.getEmail()) != null) {
-
-            // DİQQƏT: Bu, əvəzinə özünüzün yaratdığı bir `UserAlreadyExistsException` ola bilər.
             throw new RuntimeException("Bu email (" + registerDTO.getEmail() + ") artıq sistemdə mövcuddur.");
         }
 
-        // 2. DTO-dan User obyektinə konvertasiya etmək
+        // 2. DTO → Entity çevrilməsi
         User user = modelMapper.map(registerDTO, User.class);
 
-        // 3. Şifrəni şifrələmək (Encode)
+        // 3. Şifrəni şifrələmək
         String encodedPassword = passwordEncoder.encode(registerDTO.getPassword());
         user.setPassword(encodedPassword);
 
-        // 4. Default rolu təyin etmək (Əgər tətbiqinizdə rollar varsa)
-        // user.setRole(defaultRole);
+        // 4. Default rol əlavə etmək (ROLE_USER)
+        Role userRole = roleRepository.findByName("ROLE_USER");
+        if (userRole == null) {
+            throw new RuntimeException("Default rol (ROLE_USER) tapılmadı. Zəhmət olmasa 'roles' cədvəlini yoxla.");
+        }
+        user.getRoles().add(userRole);
 
-        // 5. İstifadəçini bazaya saxlamaq və yaradılmış obyekti qaytarmaq
+        // 5. Bazaya yadda saxla
         return userRepository.save(user);
     }
 
-    // Əlavə olaraq digər metodları da IUserService interfeysinə uyğun tamamlayaq:
-
     @Override
     public User findByEmail(String email) {
-        // Repository-dən istifadə edərək email-ə görə istifadəçini tapın.
         return userRepository.findByEmail(email);
-        // findByEmail metodu UserRepository interfeysində olmalıdır
     }
 
     @Override
     public boolean existsByEmail(String email) {
-        // Əgər repository-də existsByEmail metodu varsa, ondan istifadə edin:
-        // return userRepository.existsByEmail(email);
-
-        // Yoxdursa, findByEmail ilə yoxlamaq da olar:
         return userRepository.findByEmail(email) != null;
     }
 

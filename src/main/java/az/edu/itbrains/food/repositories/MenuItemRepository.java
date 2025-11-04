@@ -13,4 +13,5 @@ public interface MenuItemRepository extends JpaRepository<MenuItem,Long> {
     List<MenuItem> findFirstN(@Param("limit") int limit);
     // 🛑 YENİ METOD: Aktiv olan bütün MenuItem-lərin sayını hesablayır
     long countByIsActiveTrue();
+
 }

@@ -1,6 +1,7 @@
 package az.edu.itbrains.food.Controllers.Dashboard;
 
 import az.edu.itbrains.food.DTOs.DashboardDTO.MenuItemCreateDTO;
+import az.edu.itbrains.food.DTOs.DashboardDTO.MenuItemEditDTO;
 import az.edu.itbrains.food.DTOs.response.MenuItemResponseDTO;
 import az.edu.itbrains.food.services.ICategoryService;
 import az.edu.itbrains.food.services.IMenuItemService;
@@ -9,10 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -84,4 +83,69 @@ public class MenuItemsController {
         // 3. Uğurla yadda saxlandıqdan sonra Məhsullar siyahısı səhifəsinə yönləndir
         return "redirect:/admin/menu-items?success=created";
     }
+    @GetMapping("/{id}/edit")
+    public String showEditForm(@PathVariable Long id, Model model) {
+
+        MenuItemEditDTO editDTO = menuItemService.getMenuItemForEdit(id);
+
+        // Kateqoriyaları yenə də Modela əlavə edirik (Dropdown üçün)
+        model.addAttribute("categories", categoryService.getAllCategory());
+
+        model.addAttribute("menuItem", editDTO);
+        model.addAttribute("currentUri", "/admin/menu-items");
+
+        return "dashboard/menu-items/edit";
+    }
+    @PostMapping("/{id}/edit")
+    public String updateMenuItem(
+            // URL-dən ID-ni qəbul edirik (Validasiya üçün lazım olmasa da, URL uyğunluğu üçün saxlanılır)
+            @PathVariable Long id,
+
+            // DTO-nu qəbul edir və Validasiyadan keçirir
+            @Valid @ModelAttribute("menuItem") MenuItemEditDTO dto,
+
+            // Validasiya nəticələrini tutmaq üçün
+            BindingResult bindingResult,
+
+            Model model) {
+
+        // 1. Əgər Validasiya xətaları varsa, Formu yenidən göstər
+        if (bindingResult.hasErrors()) {
+            // Formu yenidən göstərərkən Kateqoriyalar yenidən Modela əlavə edilməlidir
+            model.addAttribute("categories", categoryService.getAllCategory());
+            model.addAttribute("currentUri", "/admin/menu-items");
+            return "dashboard/menu-items/edit";
+        }
+
+        // 2. Validasiya uğurlu olarsa, Servis vasitəsilə database-i yenilə
+        try {
+            menuItemService.updateMenuItem(dto);
+        } catch (RuntimeException e) {
+            // Məsələn, Kateqoriya tapılmadı xətası
+            model.addAttribute("errorMessage", "Məhsul yenilənərkən xəta baş verdi: " + e.getMessage());
+            model.addAttribute("categories", categoryService.getAllCategory());
+            model.addAttribute("currentUri", "/admin/menu-items");
+            return "dashboard/menu-items/edit";
+        }
+
+        // 3. Uğurla yeniləndikdən sonra Məhsullar siyahısı səhifəsinə yönləndir
+        return "redirect:/admin/menu-items?success=updated";
+    }
+    @GetMapping("/delete/{id}")
+    public String deleteMenuItem(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        // Model əvəzinə RedirectAttributes istifadə edirik
+
+        try {
+            menuItemService.deleteMenuItem(id);
+            // Uğur mesajı
+            redirectAttributes.addFlashAttribute("successMessage", "Məhsul uğurla silindi.");
+        } catch (RuntimeException e) {
+            // Xəta mesajı
+            redirectAttributes.addFlashAttribute("errorMessage", "Silinmə zamanı xəta: " + e.getMessage());
+        }
+
+        // RedirectAttributes ilə yönləndiririk
+        return "redirect:/admin/menu-items";
+    }
+
 }

@@ -1,6 +1,7 @@
 package az.edu.itbrains.food.services;
 
 import az.edu.itbrains.food.DTOs.DashboardDTO.MenuItemCreateDTO;
+import az.edu.itbrains.food.DTOs.DashboardDTO.MenuItemEditDTO;
 import az.edu.itbrains.food.DTOs.response.MenuItemResponseDTO;
 import jakarta.validation.Valid;
 
@@ -16,4 +17,10 @@ public interface IMenuItemService {
     long countActiveMenuItems();
 
     void createMenuItem(MenuItemCreateDTO menuItemCreateDTO);
+    MenuItemEditDTO getMenuItemForEdit(Long id);
+
+    void updateMenuItem(MenuItemEditDTO editDTO);
+    void deleteMenuItem(Long id);
+
+
 }

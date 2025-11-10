@@ -53,35 +53,37 @@ public class MenuItemsController {
 
     @PostMapping("/create")
     public String saveMenuItem(
-            // DTO-nu qəbul edir və Validasiyadan keçirir
             @Valid @ModelAttribute("menuItem") MenuItemCreateDTO dto,
-
-            // Validasiya nəticələrini tutmaq üçün
             BindingResult bindingResult,
+            Model model,
+            // Loggers istifadə etmədiyiniz üçün, bu funksionallığı saxlayırıq
+            RedirectAttributes redirectAttributes) {
 
-            Model model) {
-
-        // 1. Əgər Validasiya xətaları varsa, Formu yenidən göstər
+        // 1. Validasiya Xətaları
         if (bindingResult.hasErrors()) {
-            // Kateqoriyalar yenidən Modela əlavə edilməlidir ki, dropdown dolmuş qalsın
+            System.err.println("!!! Validasiya Xətası: Forma məlumatları səhvdir.");
             model.addAttribute("categories", categoryService.getAllCategory());
             model.addAttribute("currentUri", "/admin/menu-items/create");
             return "dashboard/menu-items/create";
         }
 
-        // 2. Validasiya uğurlu olarsa, Servis vasitəsilə database-ə yaz
+        // 2. Servis/Database Əməliyyatı
         try {
+            // Əsas əməliyyat
             menuItemService.createMenuItem(dto);
-        } catch (Exception e) {
-            // Hər hansı bir database xətası olarsa (məsələn, Unikal sahə), formu yenidən göstər
-            model.addAttribute("errorMessage", "Məhsul əlavə edilərkən xəta baş verdi: " + e.getMessage());
-            model.addAttribute("categories", categoryService.getAllCategory());
-            model.addAttribute("currentUri", "/admin/menu-items/create");
-            return "dashboard/menu-items/create";
-        }
 
-        // 3. Uğurla yadda saxlandıqdan sonra Məhsullar siyahısı səhifəsinə yönləndir
-        return "redirect:/admin/menu-items?success=created";
+            // Uğur mesajı ilə siyahı səhifəsinə yönləndir
+            redirectAttributes.addFlashAttribute("successMessage", "Yeni məhsul uğurla əlavə edildi!");
+            return "redirect:/admin/menu-items";
+
+        } catch (RuntimeException e) {
+            // Bazada və ya Servisdə xəta baş verərsə
+            System.err.println("!!! Bazaya yazılma xətası: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Məhsul əlavə edilərkən xəta baş verdi: " + e.getMessage());
+
+            // Xəta halında siyahı səhifəsinə yönləndir ki, xəta mesajı görünsün.
+            return "redirect:/admin/menu-items";
+        }
     }
     @GetMapping("/{id}/edit")
     public String showEditForm(@PathVariable Long id, Model model) {

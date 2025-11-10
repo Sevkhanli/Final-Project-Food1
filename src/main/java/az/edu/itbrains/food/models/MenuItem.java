@@ -20,9 +20,8 @@ public class MenuItem {
     private String description;
     private double price;
 
-    // 🏆 SADƏCƏ BU SAHƏNİ SAXLAYIN: 'active' yox, 'isActive' istifadə edin.
-    @Column(name = "is_active") // Database-dəki adı
-    private Boolean isActive = true; // Java-da 'Boolean' istifadə edirik
+    @Column(name = "is_active")
+    private Boolean isActive = true; // Setter olaraq setIsActive() istifade olunacaq
 
     @Column(name = "image_url")
     private String imageUrl;
@@ -30,7 +29,4 @@ public class MenuItem {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
-
-    // 🛑 QEYD: Əvvəlki kodunuzdakı 'private boolean isActive = true;' və 'private Boolean active;'
-    // sahələrini SİLİN. Yalnız yuxarıdakı 'private Boolean isActive = true;' qalsın.
 }

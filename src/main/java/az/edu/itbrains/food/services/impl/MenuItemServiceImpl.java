@@ -34,7 +34,6 @@ public class MenuItemServiceImpl implements IMenuItemService {
                 .toList();
     }
 
-    // 🛑 Düzəliş edilən metod
     @Override
     public List<MenuItemResponseDTO> getAllMenuItem() {
         return menuItemRepository.findAll()
@@ -51,8 +50,6 @@ public class MenuItemServiceImpl implements IMenuItemService {
                     }
 
                     // 2. isActive fieldinin Null olub-olmaması yoxlanılır (500 xətasının qarşısını alır)
-                    // DTO-da 'Boolean isActive' fieldinin normal getter və setter metodlarının (is/get/set)
-                    // mövcudluğunu fərz edirik.
                     if (dto.getIsActive() == null) {
                         dto.setIsActive(false); // Default olaraq passiv təyin edirik
                     }
@@ -86,15 +83,20 @@ public class MenuItemServiceImpl implements IMenuItemService {
         return menuItemRepository.countByIsActiveTrue();
     }
 
+    // ⭐ DÜZƏLDİLMİŞ METOD ⭐
     @Override
     public void createMenuItem(MenuItemCreateDTO menuItemCreateDTO) {
 
         // 1. Kateqoriyanı ID vasitəsilə database-dən tapırıq
-        Category category = categoryRepository.findById(menuItemCreateDTO.getCategoryId()) // ✅ DÜZƏLİŞ
-                .orElseThrow(() -> new RuntimeException("Kateqoriya tapılmadı: ID " + menuItemCreateDTO.getCategoryId())); // ✅ DÜZƏLİŞ
+        Category category = categoryRepository.findById(menuItemCreateDTO.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Kateqoriya tapılmadı: ID " + menuItemCreateDTO.getCategoryId()));
 
         // 2. DTO-nu Entity-yə çeviririk
-        MenuItem menuItem = modelMapper.map(menuItemCreateDTO, MenuItem.class); // ✅ DÜZƏLİŞ
+        MenuItem menuItem = modelMapper.map(menuItemCreateDTO, MenuItem.class);
+
+        // 🚨 ƏSAS DÜZƏLİŞ: Yeni obyektdə ID-ni null təyin etmək.
+        // Bu, Hibernate-ə INSERT əməliyyatını icra etməsini bildirir.
+        menuItem.setId(null);
 
         // 3. Kateqoriya obyektini MenuItem entity-sinə set edirik
         menuItem.setCategory(category);
@@ -121,7 +123,7 @@ public class MenuItemServiceImpl implements IMenuItemService {
         return dto;
     }
     @Override
-    @Transactional // Birdən çox əməliyyat olmasa da, yeniləmə (UPDATE) üçün məqsədəuyğundur
+    @Transactional
     public void updateMenuItem(MenuItemEditDTO dto) {
         // 1. Məhsulun mövcud entity-sini tapırıq
         MenuItem existingItem = menuItemRepository.findById(dto.getId())
@@ -132,14 +134,13 @@ public class MenuItemServiceImpl implements IMenuItemService {
                 .orElseThrow(() -> new RuntimeException("Kateqoriya tapılmadı: ID " + dto.getCategoryId()));
 
         // 3. MÖVCUD OBYEKTİN LAZIMI SAHƏLƏRİNİ DTO-dan gələn dəyərlərlə əl ilə yeniləyirik:
-        // Bu, həm Status (Aktiv/Passiv) dəyişikliyini, həm də digər məlumatları yadda saxlayır.
 
         existingItem.setName(dto.getName());
-        existingItem.setPrice(dto.getPrice()); // ✅ Qiymət set olunur
+        existingItem.setPrice(dto.getPrice());
         existingItem.setDescription(dto.getDescription());
         existingItem.setImageUrl(dto.getImageUrl());
 
-        // 🌟 ƏSAS MƏQSƏD: Aktiv/Passiv statusunu yeniləyirik
+        // 🌟 Aktiv/Passiv statusunu yeniləyirik
         existingItem.setIsActive(dto.getIsActive());
 
         // 4. Kateqoriyanı set edirik (Xətanın qarşısını alır)
@@ -150,7 +151,7 @@ public class MenuItemServiceImpl implements IMenuItemService {
     }
 
     @Override
-    @Transactional // Bütün əməliyyat ya işləyir, ya da heç biri işləmir
+    @Transactional
     public void deleteMenuItem(Long id) {
 
         // 1. Mövcudluq yoxlaması
@@ -158,7 +159,7 @@ public class MenuItemServiceImpl implements IMenuItemService {
             throw new RuntimeException("Silinəcək məhsul tapılmadı: ID " + id);
         }
 
-        // 2. 🏆 ƏSAS ADDIM: Foreign Key xətasının qarşısını almaq üçün
+        // 2. ƏSAS ADDIM: Foreign Key xətasının qarşısını almaq üçün
         // Əvvəlcə bu məhsula bağlı olan bütün Sifariş Elementlərini silirik.
         orderItemRepository.deleteByMenuItemId(id);
 

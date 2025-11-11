@@ -21,6 +21,7 @@ public interface IMenuItemService {
 
     void updateMenuItem(MenuItemEditDTO editDTO);
     void deleteMenuItem(Long id);
+    List<MenuItemResponseDTO> getAllActiveMenuItemsForClient(); // <-- BU METODU ƏLAVƏ EDİN
 
 
 }

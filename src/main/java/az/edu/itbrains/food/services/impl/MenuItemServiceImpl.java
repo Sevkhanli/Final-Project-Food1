@@ -28,7 +28,7 @@ public class MenuItemServiceImpl implements IMenuItemService {
 
     @Override
     public List<MenuItemResponseDTO> getFirstNMenuItems(int limit) {
-        return menuItemRepository.findFirstN(limit)
+        return menuItemRepository.findFirstNActive(limit)
                 .stream()
                 .map(item -> modelMapper.map(item, MenuItemResponseDTO.class))
                 .toList();
@@ -66,7 +66,7 @@ public class MenuItemServiceImpl implements IMenuItemService {
 
     @Override
     public List<MenuItemResponseDTO> getMenuItemsByCategoryId(Long categoryId) {
-        return menuItemRepository.findByCategory_Id(categoryId)
+        return menuItemRepository.findByCategory_IdAndIsActiveTrue(categoryId)
                 .stream()
                 .map(item -> modelMapper.map(item, MenuItemResponseDTO.class))
                 .toList();
@@ -166,4 +166,32 @@ public class MenuItemServiceImpl implements IMenuItemService {
         // 3. Əsas məhsulu (MenuItem) silirik
         menuItemRepository.deleteById(id);
     }
-}
+
+    @Override
+    public List<MenuItemResponseDTO> getAllActiveMenuItemsForClient() {
+        return menuItemRepository.findByIsActiveTrue()
+                .stream()
+                .map(item -> {
+                    MenuItemResponseDTO dto = modelMapper.map(item, MenuItemResponseDTO.class);
+
+                    // Kateqoriya adını və Null yoxlamalarını əlavə edirik (sizdəki kimi)
+                    if (item.getCategory() != null) {
+                        dto.setCategory(item.getCategory().getName());
+                    } else {
+                        dto.setCategory("Kateqoriyasız");
+                    }
+
+                    // isActive dəyəri zatən true olacaq, amma ehtiyat üçün saxlayaq
+                    if (dto.getIsActive() == null) {
+                        dto.setIsActive(false);
+                    }
+
+                    if (dto.getDescription() == null) {
+                        dto.setDescription("");
+                    }
+
+                    return dto;
+                })
+                .toList();
+    }
+    }

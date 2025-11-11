@@ -32,11 +32,14 @@ public class MenuItemController {
         List<MenuItemResponseDTO> menuItemResponseDTOList;
 
         if (categoryId != null) {
+            // Service artıq isActive=true olanları gətirir.
             menuItemResponseDTOList = iMenuItemService.getMenuItemsByCategoryId(categoryId);
         } else {
             if (all) {
+                // Service artıq isActive=true olanları gətirir.
                 menuItemResponseDTOList = iMenuItemService.getAllMenuItem();
             } else {
+                // Service artıq isActive=true olanlardan ilk 6-nı gətirir.
                 menuItemResponseDTOList = iMenuItemService.getFirstNMenuItems(6);
             }
         }
@@ -58,4 +61,5 @@ public class MenuItemController {
         model.addAttribute("categoryItems", categoryResponseDTOList);
         model.addAttribute("allView", all);
         return "menu";
-    }}
+    }
+}

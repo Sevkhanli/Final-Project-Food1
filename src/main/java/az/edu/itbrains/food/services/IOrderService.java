@@ -1,5 +1,6 @@
 package az.edu.itbrains.food.services;
 
+import az.edu.itbrains.food.DTOs.DashboardDTO.OrderListDTO;
 import az.edu.itbrains.food.models.Order;
 
 import java.util.List;
@@ -14,4 +15,6 @@ public interface IOrderService {
     long countTodayOrders();
     double calculateTodayRevenue();
     List<Order> getRecentOrders(int limit);
+    //TODO Admin siyahısı üçün sifarişləri gətirən yeni metod
+    List<OrderListDTO> getAllOrdersForAdminList();
 }

@@ -22,4 +22,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Double sumTotalPriceSince(LocalDateTime startOfToday);
 
     List<Order> findTop5ByOrderByOrderDateDesc();
+
+    List<Order> findAllByOrderByOrderDateDesc();
 }

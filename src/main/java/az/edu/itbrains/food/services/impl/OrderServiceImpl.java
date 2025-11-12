@@ -1,5 +1,6 @@
 package az.edu.itbrains.food.services.impl;
 
+import az.edu.itbrains.food.DTOs.DashboardDTO.OrderListDTO;
 import az.edu.itbrains.food.models.Order;
 import az.edu.itbrains.food.repositories.OrderRepository;
 import az.edu.itbrains.food.services.IOrderService;
@@ -11,12 +12,14 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors; // Collectors importunu da əlavə edirik
 
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements IOrderService {
 
     private final OrderRepository orderRepository;
+    // ModelMapper inject-i silinməlidir, çünki istifadə edilməyəcək.
 
     @Override
     @Transactional
@@ -33,7 +36,6 @@ public class OrderServiceImpl implements IOrderService {
     // YENİ METOD 1: Bugün verilən sifarişlərin sayını hesablayır
     @Override
     public long countTodayOrders() {
-        // Bugünün başlanğıc vaxtını (00:00:00) hesablayırıq
         LocalDateTime startOfToday = LocalDateTime.now().with(LocalTime.MIN);
         return orderRepository.countOrdersSince(startOfToday);
     }
@@ -42,16 +44,39 @@ public class OrderServiceImpl implements IOrderService {
     @Override
     public double calculateTodayRevenue() {
         LocalDateTime startOfToday = LocalDateTime.now().with(LocalTime.MIN);
-
-        // Repository-dən gələn dəyər null ola bilər (Əgər sifariş yoxdursa)
         Double totalRevenue = orderRepository.sumTotalPriceSince(startOfToday);
-
-        // Əgər null gələrsə 0.0 qaytarırıq
         return totalRevenue != null ? totalRevenue : 0.0;
     }
 
     @Override
     public List<Order> getRecentOrders(int limit) {
         return orderRepository.findTop5ByOrderByOrderDateDesc();
+    }
+
+    @Override
+    @Transactional // Bu annotasiya saxlanılır
+    public List<OrderListDTO> getAllOrdersForAdminList() {
+        // Bütün sifarişləri (ən yenidən) gətiririk
+        List<Order> orders = orderRepository.findAllByOrderByOrderDateDesc();
+
+        // ⭐ TƏHLÜKƏSİZ ƏL İLƏ MAPİNQ (Lazy Loading-dən qaçırıq) ⭐
+        return orders.stream()
+                .map(order -> {
+                    OrderListDTO dto = new OrderListDTO();
+
+                    // Entity-dən DTO-ya olan bütün adi (Lazy olmayan) sahələri köçürürük.
+                    dto.setId(order.getId());
+                    dto.setOrderDate(order.getOrderDate());
+                    dto.setOrderStatus(order.getOrderStatus());
+                    dto.setFullName(order.getFullName());
+                    dto.setPhoneNumber(order.getPhoneNumber());
+                    dto.setAddress(order.getAddress());
+                    dto.setTotalPrice(order.getTotalPrice());
+
+                    // User və OrderItems (Lazy Loading) kimi əlaqəli obyektlərə toxunmuruq.
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 }

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="az"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{dashboard/layout}">
+<head>
+    <title layout:title-pattern="$CONTENT_TITLE | FF Admin">Status Düzəlişi</title>
+    <style layout:fragment="page-css">
+        .status-form-card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            border: 1px solid #e3e6f0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        .btn-submit {
+            background-color: #ff6600; /* Narıncı */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-back {
+            background-color: #6c757d; /* Boz */
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<th:block layout:fragment="page-header">
+    <div class="page-header-fragment">
+        <div class="header-content">
+            <h1 th:text="|Sifariş #${orderId} Status Düzəlişi|">Sifariş #1 Status Düzəlişi</h1>
+            <p class="header-subtitle">Sifarişin statusunu yeniləyin.</p>
+        </div>
+    </div>
+</th:block>
+
+<div layout:fragment="content">
+    <div class="dashboard-container" style="padding: 2rem 2rem;">
+
+        <div class="status-form-card">
+
+            <form th:action="@{/admin/orders/update-status/{id}(id=${orderId})}" method="post">
+
+                <p style="color: #718096; margin-bottom: 1rem;">Hazırkı status: **[Məlumat]**</p>
+                <hr style="margin-bottom: 1.5rem;">
+
+                <div class="form-group">
+                    <label for="orderStatus">Yeni Status Seçin:</label>
+                    <select id="orderStatus" name="orderStatus">
+                        <option value="NEW">YENİ</option>
+                        <option value="PREPARING">HAZIRLANIR</option>
+                        <option value="SHIPPED">GÖNDƏRİLDİ</option>
+                        <option value="DELIVERED">ÇATDIRILDI</option>
+                        <option value="CANCELLED">LƏĞV EDİLDİ</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn-submit">Statusu Yenilə</button>
+                    <a th:href="@{/orders}" class="btn-back">Geri Qayıt</a>
+                </div>
+            </form>
+
+        </div>
+
+    </div>
+</div>
+</html>

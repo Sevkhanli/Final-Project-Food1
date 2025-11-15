@@ -30,4 +30,7 @@ public class OrderItem {
 
     @Column(name = "price")
     private double price;
+    @ManyToOne
+    @JoinColumn(name = "menu_item_id", insertable = false, updatable = false) // ID-dən istifadə edir
+    private MenuItem menuItem;
 }

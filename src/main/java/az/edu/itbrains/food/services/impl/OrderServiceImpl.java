@@ -1,5 +1,7 @@
 package az.edu.itbrains.food.services.impl;
 
+import az.edu.itbrains.food.DTOs.DashboardDTO.OrderDetailDTO;
+import az.edu.itbrains.food.DTOs.DashboardDTO.OrderItemDetailDTO;
 import az.edu.itbrains.food.DTOs.DashboardDTO.OrderListDTO;
 import az.edu.itbrains.food.models.Order;
 import az.edu.itbrains.food.repositories.OrderRepository;
@@ -8,18 +10,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors; // Collectors importunu da əlavə edirik
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements IOrderService {
 
     private final OrderRepository orderRepository;
-    // ModelMapper inject-i silinməlidir, çünki istifadə edilməyəcək.
 
     @Override
     @Transactional
@@ -33,14 +35,59 @@ public class OrderServiceImpl implements IOrderService {
         return order.orElse(null);
     }
 
-    // YENİ METOD 1: Bugün verilən sifarişlərin sayını hesablayır
+    /**
+     * Sifarişin Detallarını (Order və OrderItems) DTO formatında gətirir.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public OrderDetailDTO getOrderDetailsById(Long orderId) {
+
+        // Sifariş tapılmazsa null qaytarılır
+        Order order = orderRepository.findById(orderId).orElse(null);
+        if (order == null) {
+            return null;
+        }
+
+        // OrderItems-in DTO-ya çevrilməsi
+        List<OrderItemDetailDTO> itemDetails = order.getOrderItems().stream()
+                .map(item -> new OrderItemDetailDTO(
+                        // ⭐ DÜZƏLİŞ BURADA: menuItem əlaqəsi vasitəsilə məhsulun adını çəkirik.
+                        // item.getMenuItem().getName() null olmasın deyə yoxlama əlavə edilir.
+                        item.getMenuItem() != null ? item.getMenuItem().getName() : "Naməlum Məhsul",
+
+                        // Quantity
+                        item.getQuantity(),
+
+                        // Price
+                        BigDecimal.valueOf(item.getPrice())
+                ))
+                .collect(Collectors.toList());
+
+        // Əsas OrderDetailDTO-nun doldurulması
+        OrderDetailDTO dto = new OrderDetailDTO();
+        dto.setId(order.getId());
+        dto.setOrderDate(order.getOrderDate());
+        dto.setOrderStatus(order.getOrderStatus());
+        dto.setFullName(order.getFullName());
+        dto.setPhoneNumber(order.getPhoneNumber());
+        dto.setAddress(order.getAddress());
+
+        // Entity-də double olduğu üçün çevrilir
+        dto.setTotalPrice(BigDecimal.valueOf(order.getTotalPrice()));
+        dto.setOrderItems(itemDetails);
+
+        return dto;
+    }
+
+
+    // Yuxarıdakı metodlar eyni qalır...
+
     @Override
     public long countTodayOrders() {
         LocalDateTime startOfToday = LocalDateTime.now().with(LocalTime.MIN);
         return orderRepository.countOrdersSince(startOfToday);
     }
 
-    // YENİ METOD 2: Bugün verilən sifarişlərin ümumi gəlirini (məbləğini) hesablayır
     @Override
     public double calculateTodayRevenue() {
         LocalDateTime startOfToday = LocalDateTime.now().with(LocalTime.MIN);
@@ -54,26 +101,30 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    @Transactional // Bu annotasiya saxlanılır
+    @Transactional(readOnly = true) // Sadəcə oxuma əməliyyatıdır
     public List<OrderListDTO> getAllOrdersForAdminList() {
         // Bütün sifarişləri (ən yenidən) gətiririk
         List<Order> orders = orderRepository.findAllByOrderByOrderDateDesc();
 
-        // ⭐ TƏHLÜKƏSİZ ƏL İLƏ MAPİNQ (Lazy Loading-dən qaçırıq) ⭐
+        // Əgər bazada sifariş yoxdursa, boş siyahı qaytar
+        if (orders == null || orders.isEmpty()) {
+            return List.of(); // Java 9+ üçün, əks halda Collections.emptyList();
+        }
+
         return orders.stream()
                 .map(order -> {
                     OrderListDTO dto = new OrderListDTO();
-
-                    // Entity-dən DTO-ya olan bütün adi (Lazy olmayan) sahələri köçürürük.
                     dto.setId(order.getId());
                     dto.setOrderDate(order.getOrderDate());
                     dto.setOrderStatus(order.getOrderStatus());
                     dto.setFullName(order.getFullName());
                     dto.setPhoneNumber(order.getPhoneNumber());
                     dto.setAddress(order.getAddress());
-                    dto.setTotalPrice(order.getTotalPrice());
 
-                    // User və OrderItems (Lazy Loading) kimi əlaqəli obyektlərə toxunmuruq.
+                    // ⭐ ƏSAS DÜZƏLİŞ: double primitiv tipi olsa da,
+                    // əgər hansısa səbəbdən bazadan null gələrsə, xəta verməməsi üçün yoxlama
+                    double totalPrice = order.getTotalPrice();
+                    dto.setTotalPrice(totalPrice > 0.0 ? totalPrice : 0.0);
 
                     return dto;
                 })

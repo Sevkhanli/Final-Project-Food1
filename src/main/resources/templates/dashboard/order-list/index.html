@@ -4,72 +4,54 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{dashboard/layout}">
 <head>
-    <title>Sifarişlər | FF Admin</title>
+    <title layout:title-pattern="$CONTENT_TITLE | FF Admin">Sifarişlər</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" layout:fragment="page-css-link">
 
     <style layout:fragment="page-css">
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        /* Vurğu rəngləri sidebar və Məhsullar səhifəsi ilə uyğunlaşdırılır (Narıncı) */
+        :root {
+            --ff-primary-color: #ff6600; /* Narıncı */
+            --ff-dark-color: #212529; /* Tünd (Sidebar) */
+            --ff-light-bg: #f7f9fc; /* Açıq fon */
+            --ff-text-color: #1a202c;
+        }
 
         /* ======== Reset & Base ======== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--ff-light-bg);
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            color: #1a202c;
-            min-height: 100vh;
-            padding: 2rem;
+            color: var(--ff-text-color);
         }
 
-        /* ======== Header Section ======== */
+        /* Yalnız bu səhifənin kontent boşluğunu təmin edirik */
         .dashboard-container {
             max-width: 1400px;
             margin: 0 auto;
+            padding: 0 2rem;
         }
 
-        .page-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 2rem;
-            animation: slideDown 0.5s ease;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .page-header-fragment {
+            padding: 2rem 2rem 1rem;
         }
 
         .header-content h1 {
             font-size: 2rem;
             font-weight: 700;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
+            color: #2d3748;
             margin-bottom: 0.5rem;
         }
 
         .header-content h1 i {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 0.5rem;
-            border-radius: 12px;
-            backdrop-filter: blur(10px);
+            color: var(--ff-primary-color);
+            margin-right: 10px;
         }
 
         .header-subtitle {
-            color: rgba(255, 255, 255, 0.8);
+            color: #718096;
             font-size: 0.95rem;
-            font-weight: 400;
         }
 
         /* ======== Stats Cards ======== */
@@ -78,230 +60,110 @@
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
-            animation: fadeIn 0.6s ease 0.2s both;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 16px;
+            background: #ffffff;
+            border-radius: 8px;
             padding: 1.5rem;
             display: flex;
             align-items: center;
             gap: 1rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
         }
 
         .stat-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 14px;
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             flex-shrink: 0;
         }
 
-        .stat-icon.primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .stat-icon.success {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            color: white;
-        }
-
-        .stat-icon.warning {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-        }
-
-        .stat-icon.info {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-        }
-
-        .stat-content {
-            flex: 1;
-        }
+        .stat-icon.primary { background: var(--ff-primary-color); color: white; }
+        .stat-icon.success { background: #10b981; color: white; }
+        .stat-icon.warning { background: #f5576c; color: white; }
+        .stat-icon.info { background: #4facfe; color: white; }
 
         .stat-label {
-            font-size: 0.8rem;
-            color: #718096;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
+            font-size: 0.75rem; color: #718096; text-transform: uppercase; font-weight: 600;
         }
-
         .stat-value {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: #1a202c;
-            line-height: 1;
+            font-size: 1.5rem; font-weight: 700; color: var(--ff-text-color);
         }
 
-        /* ======== Main Table Container ======== */
+        /* ======== Main Table Container (Card stili) ======== */
         .order-table-container {
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
+            background: #ffffff;
+            border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            animation: fadeIn 0.6s ease 0.4s both;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            border: 1px solid #e3e6f0;
         }
 
-        /* ======== Table Header ======== */
         .table-header {
-            padding: 1.5rem 2rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 0.75rem 1.25rem;
+            background: #f8f9fc;
+            border-bottom: 1px solid #e3e6f0;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
         .table-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--ff-dark-color);
         }
 
+        /* Axtarış Qutusu */
         .search-box {
             position: relative;
             width: 300px;
         }
 
         .search-box input {
-            width: 100%;
-            padding: 0.6rem 1rem 0.6rem 2.5rem;
-            border: none;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            color: white;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-
-        .search-box input::placeholder {
-            color: rgba(255, 255, 255, 0.7);
+            width: 100%; padding: 0.5rem 1rem 0.5rem 2.5rem; border: 1px solid #ced4da;
+            border-radius: 0.35rem; font-size: 0.9rem;
         }
 
         .search-box input:focus {
-            outline: none;
-            background: rgba(255, 255, 255, 0.3);
+            outline: 0; border-color: var(--ff-primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(255, 102, 0, 0.25);
         }
 
         .search-box i {
-            position: absolute;
-            left: 0.8rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: rgba(255, 255, 255, 0.7);
+            position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); color: #6c757d;
         }
 
         /* ======== Table Styles ======== */
-        .table-wrapper {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-        }
-
-        thead {
-            background: #f7fafc;
-        }
-
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        thead { background: #eaecf4; }
         th {
-            text-transform: uppercase;
-            font-size: 0.7rem;
-            color: #4a5568;
-            padding: 1.2rem 1.5rem;
-            text-align: left;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            border-bottom: 2px solid #e2e8f0;
-            white-space: nowrap;
+            text-transform: uppercase; font-size: 0.75rem; color: #4a5568;
+            padding: 0.75rem 1.25rem; font-weight: 600; border-bottom: 1px solid #e3e6f0;
         }
 
-        td {
-            padding: 1.25rem 1.5rem;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: 0.9rem;
-            vertical-align: middle;
-        }
+        td { padding: 0.75rem 1.25rem; border-bottom: 1px solid #f1f1f1; font-size: 0.9rem; vertical-align: middle; }
+        tbody tr:hover { background: #f9f9f9; }
 
-        tbody tr {
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-
-        tbody tr:hover {
-            background: linear-gradient(90deg, #f8f9ff 0%, #f0f4ff 100%);
-            transform: scale(1.002);
-        }
-
-        /* ======== Order ID Badge ======== */
+        /* ======== Order ID Badge (Narıncı) ======== */
         .order-id {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-weight: 700;
-            color: #667eea;
-            background: rgba(102, 126, 234, 0.1);
-            padding: 0.4rem 0.8rem;
-            border-radius: 8px;
-            font-size: 0.85rem;
+            font-weight: 600; color: #fff; background: var(--ff-primary-color);
+            padding: 0.3rem 0.6rem; border-radius: 0.25rem; font-size: 0.8rem;
+            display: inline-flex; align-items: center; gap: 0.4rem;
         }
+        .order-id i { font-size: 0.7rem; }
 
-        /* ======== Date Styling ======== */
-        .date-cell {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-        }
+        /* ================================================= */
+        /* ======== Müştəri Məlumatı Düzəlişi (Təmiz) ======== */
+        /* ================================================= */
 
-        .date-main {
-            font-weight: 600;
-            color: #2d3748;
-        }
-
-        .date-time {
-            font-size: 0.75rem;
-            color: #a0aec0;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        /* ======== Customer Info ======== */
         .customer-info {
             display: flex;
             align-items: center;
@@ -309,16 +171,16 @@
         }
 
         .customer-avatar {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--ff-primary-color);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-weight: 700;
-            font-size: 0.9rem;
+            font-weight: 600;
+            font-size: 0.8rem;
             flex-shrink: 0;
         }
 
@@ -329,16 +191,24 @@
 
         .customer-name {
             font-weight: 600;
-            color: #2d3748;
-            margin-bottom: 0.15rem;
+            color: #2d3748; /* Təmiz tünd mətn */
+            margin-bottom: 0.1rem;
+            background: none !important; /* Əlavə təminat üçün */
+            padding: 0 !important;
         }
 
         .customer-contact {
             font-size: 0.75rem;
-            color: #718096;
+            color: #718096; /* Telefon nömrəsi açıq boz */
             display: flex;
             align-items: center;
             gap: 0.3rem;
+        }
+
+        .customer-contact span {
+            background: none !important; /* Əlavə təminat üçün */
+            padding: 0 !important;
+            color: #718096;
         }
 
         /* ======== Address Styling ======== */
@@ -356,270 +226,73 @@
         /* ======== Price Styling ======== */
         .price-cell {
             font-weight: 700;
-            font-size: 1.05rem;
-            color: #10b981;
+            color: #10b981; /* Yaşıl */
             display: flex;
             align-items: center;
             gap: 0.3rem;
         }
 
-        /* ======== Status Badges ======== */
+        /* ======== Status Badges (Qalır) ======== */
         .status {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-weight: 600;
-            padding: 0.5rem 1rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            transition: all 0.2s ease;
+            font-weight: 600; padding: 0.4rem 0.8rem; border-radius: 0.25rem;
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
         }
+        .status.NEW { background: #bfdbfe; color: #1d4ed8; }
+        .status.PREPARING { background: #fde68a; color: #d97706; }
+        .status.SHIPPED { background: #dbeafe; color: #1d4ed8; }
+        .status.DELIVERED { background: #bbf7d0; color: #15803d; }
+        .status.CANCELLED { background: #fecaca; color: #b91c1c; }
 
-        .status::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
 
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.5;
-            }
-        }
-
-        .status.NEW {
-            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
-            color: #0369a1;
-        }
-
-        .status.NEW::before {
-            background: #0369a1;
-        }
-
-        .status.PREPARING {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            color: #d97706;
-        }
-
-        .status.PREPARING::before {
-            background: #d97706;
-        }
-
-        .status.SHIPPED {
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-            color: #1d4ed8;
-        }
-
-        .status.SHIPPED::before {
-            background: #1d4ed8;
-        }
-
-        .status.DELIVERED {
-            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-            color: #15803d;
-        }
-
-        .status.DELIVERED::before {
-            background: #15803d;
-        }
-
-        .status.CANCELLED {
-            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-            color: #b91c1c;
-        }
-
-        .status.CANCELLED::before {
-            background: #b91c1c;
-        }
-
-        /* ======== Action Buttons ======== */
-        .actions-cell {
-            display: flex;
-            gap: 0.5rem;
-        }
+        /* ======== Action Buttons (Məhsullar səhifəsi ilə eyni) ======== */
+        .actions-cell { display: flex; gap: 0.5rem; justify-content: center; }
 
         .action-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
+            width: 32px; height: 32px; border-radius: 0.25rem; border: none;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; box-shadow: 0 0.05rem 0.2rem rgba(0, 0, 0, 0.1);
         }
 
-        .action-btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
-            transform: translate(-50%, -50%);
-            transition: width 0.4s, height 0.4s;
-        }
+        .action-btn.view { background: #ffc107; color: #212529; } /* Sarı/Warning */
+        .action-btn.view i { font-size: 0.9rem; }
+        .action-btn.view:hover { background: #e0a800; transform: translateY(-1px); }
 
-        .action-btn:hover::before {
-            width: 100px;
-            height: 100px;
-        }
-
-        .action-btn i {
-            font-size: 0.9rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .action-btn.view {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-        }
-
-        .action-btn.view:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .action-btn.edit {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            box-shadow: 0 4px 12px rgba(240, 147, 251, 0.3);
-        }
-
-        .action-btn.edit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(240, 147, 251, 0.4);
-        }
+        .action-btn.edit { background: #dc3545; color: white; } /* Qırmızı/Danger */
+        .action-btn.edit i { font-size: 0.9rem; }
+        .action-btn.edit:hover { background: #c82333; transform: translateY(-1px); }
 
         /* ======== Empty State ======== */
-        .empty-table {
-            text-align: center;
-            padding: 5rem 2rem;
-        }
+        .empty-table { text-align: center; padding: 3rem 2rem; }
+        .empty-icon { width: 100px; height: 100px; margin: 0 auto 1rem; background: var(--ff-primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0.1; }
+        .empty-icon i { color: var(--ff-primary-color); font-size: 3rem; opacity: 1; }
+        .empty-title { font-size: 1.25rem; font-weight: 700; color: #2d3748; margin-bottom: 0.5rem; }
+        .empty-subtitle { font-size: 0.9rem; color: #718096; }
 
-        .empty-icon {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 1.5rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0.2;
-        }
-
-        .empty-icon i {
-            font-size: 3.5rem;
-            color: white;
-        }
-
-        .empty-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #2d3748;
-            margin-bottom: 0.5rem;
-        }
-
-        .empty-subtitle {
-            font-size: 1rem;
-            color: #718096;
-        }
-
-        /* ======== Responsive Design ======== */
-        @media (max-width: 1200px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
+        /* Responsive stillər sadələşdirilir */
         @media (max-width: 768px) {
-            body {
-                padding: 1rem;
-            }
-
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .table-header {
-                flex-direction: column;
-                gap: 1rem;
-                align-items: flex-start;
-            }
-
-            .search-box {
-                width: 100%;
-            }
-
-            th, td {
-                padding: 0.75rem;
-                font-size: 0.8rem;
-            }
-
-            .customer-avatar {
-                width: 32px;
-                height: 32px;
-                font-size: 0.75rem;
-            }
-        }
-
-        /* ======== Scrollbar Styling ======== */
-        .table-wrapper::-webkit-scrollbar {
-            height: 8px;
-        }
-
-        .table-wrapper::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-
-        .table-wrapper::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 4px;
-        }
-
-        .table-wrapper::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            .dashboard-container { padding: 0 1rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .table-header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+            .search-box { width: 100%; }
         }
     </style>
 </head>
 
-<body>
+<th:block layout:fragment="page-header">
+    <div class="page-header-fragment">
+        <div class="header-content">
+            <h1>
+                <i class="fas fa-receipt"></i>
+                Sifarişlər İdarəsi
+            </h1>
+            <p class="header-subtitle">Bütün sifarişlərinizi buradan idarə edə bilərsiniz</p>
+        </div>
+    </div>
+</th:block>
+
 <div layout:fragment="content">
     <div class="dashboard-container">
 
-        <!-- Header -->
-        <div class="page-header">
-            <div class="header-content">
-                <h1>
-                    <i class="fas fa-receipt"></i>
-                    Sifarişlər İdarəsi
-                </h1>
-                <p class="header-subtitle">Bütün sifarişlərinizi buradan idarə edə bilərsiniz</p>
-            </div>
-        </div>
-
-        <!-- Stats Cards -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon primary">
@@ -662,7 +335,6 @@
             </div>
         </div>
 
-        <!-- Orders Table -->
         <div class="order-table-container">
             <div class="table-header">
                 <div class="table-title">
@@ -754,8 +426,6 @@
                 </table>
             </div>
         </div>
-
     </div>
 </div>
-</body>
 </html>

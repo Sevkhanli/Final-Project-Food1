@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="az"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{dashboard/layout}">
+<head>
+    <title layout:title-pattern="$CONTENT_TITLE | FF Admin">Sifariş Detalları</title>
+    <style layout:fragment="page-css">
+        .info-card {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border: 1px solid #e2e8f0;
+        }
+        .info-card h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px dotted #f0f0f0;
+        }
+        .info-label {
+            color: #718096;
+            font-weight: 500;
+        }
+        .info-value {
+            color: #2d3748;
+            font-weight: 600;
+        }
+        .btn-status-edit {
+            background-color: #dc3545; /* Qırmızı */
+            color: white;
+            padding: 10px 15px;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<th:block layout:fragment="page-header">
+    <div class="page-header-fragment">
+        <div class="header-content">
+            <h1 th:text="|Sifariş #${orderId} Detalları|">Sifariş #1 Detalları</h1>
+            <p class="header-subtitle">Sifarişin tam məhsul, müştəri və çatdırılma məlumatları</p>
+        </div>
+    </div>
+</th:block>
+
+<div layout:fragment="content">
+    <div class="dashboard-container" style="padding: 0 2rem 2rem;">
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+
+            <div>
+                <div class="info-card">
+                    <h4>Sifariş Edilən Məhsullar</h4>
+                    <table class="table table-striped" style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                        <thead>
+                        <tr style="border-bottom: 2px solid #f0f0f0;">
+                            <th style="padding: 8px 0; text-align: left;">Məhsul Adı</th>
+                            <th style="padding: 8px 0; text-align: center;">Say</th>
+                            <th style="padding: 8px 0; text-align: right;">Vahid Qiyməti</th>
+                            <th style="padding: 8px 0; text-align: right;">Cəmi</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="item : ${order.orderItems}">
+                            <td style="padding: 8px 0; text-align: left;" th:text="${item.productName}">Məhsul #ID</td>
+                            <td style="padding: 8px 0; text-align: center;" th:text="${item.quantity}">1</td>
+                            <td style="padding: 8px 0; text-align: right;"
+                                th:text="${#numbers.formatDecimal(item.unitPrice, 1, 'COMMA', 2, 'POINT')} + ' AZN'">1.00 AZN</td>
+                            <td style="padding: 8px 0; text-align: right;"
+                                th:with="total=${item.unitPrice * item.quantity}"
+                                th:text="${#numbers.formatDecimal(total, 1, 'COMMA', 2, 'POINT')} + ' AZN'">1.00 AZN</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 2rem;">
+
+                <div class="info-card">
+                    <h4>Müştəri & Ünvan</h4>
+                    <div class="info-item">
+                        <span class="info-label">Ad Soyad:</span>
+                        <span class="info-value" th:text="${order.fullName}">[Məlumat]</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Telefon:</span>
+                        <span class="info-value" th:text="${order.phoneNumber}">[Məlumat]</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Çatdırılma Ünvanı:</span>
+                        <span class="info-value" th:text="${order.address}">[Məlumat]</span>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <h4>Sifariş Məlumatları</h4>
+                    <div class="info-item">
+                        <span class="info-label">Tarix/Saat:</span>
+                        <span class="info-value" th:text="${#temporals.format(order.orderDate, 'dd MMMM yyyy HH:mm')}">[Məlumat]</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Toplam Məbləğ:</span>
+                        <span class="info-value" style="color: #10b981;"
+                              th:text="${#numbers.formatDecimal(order.totalPrice, 1, 'COMMA', 2, 'POINT')} + ' AZN'">[Məlumat ₼]</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Hazırkı Status:</span>
+                        <span class="info-value">
+                            <span th:class="${order.orderStatus == 'YENİ' ? 'badge badge-primary' :
+                                              (order.orderStatus == 'HAZIRLANIR' ? 'badge badge-warning' :
+                                              (order.orderStatus == 'ÇATDIRILDI' ? 'badge badge-success' : 'badge badge-danger'))}"
+                                  th:text="${order.orderStatus}">[Status]</span>
+                        </span>
+                    </div>
+
+                    <a th:href="@{/admin/orders/edit-status/{id}(id=${orderId})}" class="btn-status-edit">
+                        <i class="fas fa-edit"></i> Statusu Düzəlt
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+</html>

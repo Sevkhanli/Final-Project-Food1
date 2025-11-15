@@ -132,7 +132,7 @@
                                   th:text="${order.orderStatus}">YENİ</span>
                         </td>
 
-                        <td><a th:href="@{'/admin/orders/' + ${order.id}}" class="btn btn-sm btn-info text-white"><i class="bi bi-eye"></i> Bax</a></td>
+                        <td><a th:href="@{/admin/orders/edit-status/{id}(id=${order.id})}" class="btn btn-sm btn-info text-white"><i class="bi bi-eye"></i> Bax</a></td>
                     </tr>
 
                     </tbody>

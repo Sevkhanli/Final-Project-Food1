@@ -130,4 +130,19 @@ public class OrderServiceImpl implements IOrderService {
                 })
                 .collect(Collectors.toList());
     }
+
+    @Override
+    @Transactional // Verilənlər bazasında dəyişiklik etdiyimiz üçün lazımdır
+    public void updateOrderStatus(Long orderId, String newStatus) {
+
+        // 1. Sifarişi ID ilə tapırıq. Tapılmazsa istisna (Exception) atırıq.
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Sifariş tapılmadı: ID=" + orderId));
+
+        // 2. Statusu yeniləyirik
+        order.setOrderStatus(newStatus);
+
+        // 3. Dəyişiklikləri bazaya yadda saxlayırıq
+        orderRepository.save(order);
+    }
 }

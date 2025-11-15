@@ -19,4 +19,6 @@ public interface IOrderService {
     List<Order> getRecentOrders(int limit);
     //TODO Admin siyahısı üçün sifarişləri gətirən yeni metod
     List<OrderListDTO> getAllOrdersForAdminList();
+
+    void updateOrderStatus(Long orderId, String newStatus);
 }

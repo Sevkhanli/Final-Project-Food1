@@ -45,13 +45,29 @@
             margin-top: 15px;
             font-weight: 600;
         }
+        /* Status Badge stilləri (Əlavə edirəm, çünki bu siniflər yuxarıda istifadə olunur) */
+        .badge {
+            padding: 0.25em 0.4em;
+            font-size: 75%;
+            font-weight: 700;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.25rem;
+            color: white;
+        }
+        .badge-primary { background-color: #007bff; } /* YENİ */
+        .badge-warning { background-color: #ffc107; color: #212529; } /* HAZIRLANIR */
+        .badge-success { background-color: #28a745; } /* ÇATDIRILDI */
+        .badge-danger { background-color: #dc3545; } /* LƏĞV EDİLDİ */
     </style>
 </head>
 
 <th:block layout:fragment="page-header">
     <div class="page-header-fragment">
         <div class="header-content">
-            <h1 th:text="|Sifariş #${orderId} Detalları|">Sifariş #1 Detalları</h1>
+            <h1 th:text="|Sifariş #${order.id} Detalları|">Sifariş #1 Detalları</h1>
             <p class="header-subtitle">Sifarişin tam məhsul, müştəri və çatdırılma məlumatları</p>
         </div>
     </div>
@@ -60,6 +76,12 @@
 <div layout:fragment="content">
     <div class="dashboard-container" style="padding: 0 2rem 2rem;">
 
+        <div style="margin-bottom: 20px;">
+            <a th:href="@{/orders}" class="btn btn-secondary"
+               style="background-color: #6c757d; color: white; padding: 10px 15px; border-radius: 4px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 5px;">
+                <i class="fas fa-arrow-left"></i> Sifarişlər Siyahısına Qayıt
+            </a>
+        </div>
         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
 
             <div>
@@ -76,7 +98,7 @@
                         </thead>
                         <tbody>
                         <tr th:each="item : ${order.orderItems}">
-                            <td style="padding: 8px 0; text-align: left;" th:text="${item.productName}">Məhsul #ID</td>
+                            <td style="padding: 8px 0; text-align: left;" th:text="${item.productName}">Məhsul Adı</td>
                             <td style="padding: 8px 0; text-align: center;" th:text="${item.quantity}">1</td>
                             <td style="padding: 8px 0; text-align: right;"
                                 th:text="${#numbers.formatDecimal(item.unitPrice, 1, 'COMMA', 2, 'POINT')} + ' AZN'">1.00 AZN</td>
@@ -128,8 +150,8 @@
                         </span>
                     </div>
 
-                    <a th:href="@{/admin/orders/edit-status/{id}(id=${orderId})}" class="btn-status-edit">
-                        <i class="fas fa-edit"></i> Statusu Düzəlt
+                    <a th:href="@{/admin/orders/edit-status/{id}(id=${order.id})}" class="btn-status-edit">
+                        Statusu Düzəlt
                     </a>
                 </div>
             </div>

@@ -55,7 +55,7 @@
 <th:block layout:fragment="page-header">
     <div class="page-header-fragment">
         <div class="header-content">
-            <h1 th:text="|Sifariş #${orderId} Status Düzəlişi|">Sifariş #1 Status Düzəlişi</h1>
+            <h1 th:text="|Sifariş #${order.id} Status Düzəlişi|">Sifariş #1 Status Düzəlişi</h1>
             <p class="header-subtitle">Sifarişin statusunu yeniləyin.</p>
         </div>
     </div>
@@ -66,25 +66,32 @@
 
         <div class="status-form-card">
 
-            <form th:action="@{/admin/orders/update-status/{id}(id=${orderId})}" method="post">
+            <form th:action="@{/admin/orders/update-status}" method="post">
 
-                <p style="color: #718096; margin-bottom: 1rem;">Hazırkı status: **[Məlumat]**</p>
+                <p style="color: #718096; margin-bottom: 1rem;">Hazırkı status:
+                    <strong th:text="${order.orderStatus}">[Məlumat]</strong>
+                </p>
                 <hr style="margin-bottom: 1.5rem;">
+
+                <input type="hidden" name="orderId" th:value="${order.id}">
 
                 <div class="form-group">
                     <label for="orderStatus">Yeni Status Seçin:</label>
-                    <select id="orderStatus" name="orderStatus">
-                        <option value="NEW">YENİ</option>
-                        <option value="PREPARING">HAZIRLANIR</option>
-                        <option value="SHIPPED">GÖNDƏRİLDİ</option>
-                        <option value="DELIVERED">ÇATDIRILDI</option>
-                        <option value="CANCELLED">LƏĞV EDİLDİ</option>
+
+                    <select id="orderStatus" name="newStatus">
+
+                        <option value="YENİ" th:selected="${order.orderStatus == 'YENİ'}">YENİ</option>
+                        <option value="HAZIRLANIR" th:selected="${order.orderStatus == 'HAZIRLANIR'}">HAZIRLANIR</option>
+                        <option value="YOLDADIR" th:selected="${order.orderStatus == 'YOLDADIR'}">YOLDADIR</option>
+                        <option value="ÇATDIRILDI" th:selected="${order.orderStatus == 'ÇATDIRILDI'}">ÇATDIRILDI</option>
+                        <option value="LƏĞV EDİLDİ" th:selected="${order.orderStatus == 'LƏĞV EDİLDİ'}">LƏĞV EDİLDİ</option>
+
                     </select>
                 </div>
 
                 <div style="display: flex; gap: 10px;">
                     <button type="submit" class="btn-submit">Statusu Yenilə</button>
-                    <a th:href="@{/orders}" class="btn-back">Geri Qayıt</a>
+                    <a th:href="@{/admin/orders/details/{id}(id=${order.id})}" class="btn-back">Geri Qayıt</a>
                 </div>
             </form>
 

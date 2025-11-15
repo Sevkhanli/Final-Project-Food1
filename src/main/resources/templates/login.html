@@ -7,7 +7,7 @@
     <style>
         .login_section {
             padding: 80px 0;
-            background-color: #f7f7f7; /* Yüngül fon rəngi */
+            background-color: #f7f7f7;
         }
         .login_form {
             max-width: 450px;
@@ -19,7 +19,7 @@
         }
         .login_form h2 {
             text-align: center;
-            color: #ff6600; /* Brend rəngi */
+            color: #ff6600;
             margin-bottom: 30px;
             font-weight: 700;
         }
@@ -59,6 +59,10 @@
 
             <div th:if="${param.error}" class="alert alert-danger" role="alert">
                 <i class="fa fa-exclamation-triangle"></i> Email və ya şifrə yanlışdır!
+            </div>
+
+            <div th:if="${param.blocked}" class="alert alert-danger" role="alert">
+                <i class="fa fa-ban"></i> **Hesabınız bloklanmışdır!** Zəhmət olmasa adminlə əlaqə saxlayın.
             </div>
 
             <form th:action="@{/login}" method="post">

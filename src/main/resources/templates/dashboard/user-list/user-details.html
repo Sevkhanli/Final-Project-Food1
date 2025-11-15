@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="az" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{dashboard/layout}">
+
+<th:block layout:fragment="page-header">
+    <h1 class="h3 mb-2 text-gray-800">👤 İstifadəçi Detalları: <span class="text-info" th:text="${user.fullName}"></span></h1>
+    <a th:href="@{/admin/users}" class="btn btn-sm btn-secondary mb-3 shadow-sm"><i class="fas fa-arrow-left"></i> İstifadəçilərə Qayıt</a>
+</th:block>
+
+<div layout:fragment="content">
+
+    <div class="row">
+
+        <div class="col-12 mb-4">
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                <i class="fas fa-check-circle me-2"></i> <span th:text="${successMessage}"></span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                <i class="fas fa-times-circle me-2"></i> <span th:text="${errorMessage}"></span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow mb-4 border-left-info">
+                <div class="card-header py-3 bg-info text-white">
+                    <h6 class="m-0 font-weight-bold"><i class="fas fa-info-circle me-2"></i> Hesab Məlumatları</h6>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">ID:</dt>
+                        <dd class="col-sm-8" th:text="${user.id}"></dd>
+
+                        <dt class="col-sm-4">Ad Soyad:</dt>
+                        <dd class="col-sm-8" th:text="${user.fullName}"></dd>
+
+                        <dt class="col-sm-4">Email:</dt>
+                        <dd class="col-sm-8" th:text="${user.email}"></dd>
+
+                        <dt class="col-sm-4">Qeydiyyat Tarixi:</dt>
+                        <dd class="col-sm-8" th:text="${user.registrationDate != null ? #temporals.format(user.registrationDate, 'dd.MM.yyyy HH:mm') : 'Mövcud deyil'}"></dd>
+                    </dl>
+                    <hr class="sidebar-divider">
+                    <dl class="row mt-4">
+                        <dt class="col-sm-4">Cari Status:</dt>
+                        <dd class="col-sm-8">
+                            <span th:class="${user.status == 'AKTİV' ? 'badge bg-success text-white p-2' : 'badge bg-danger text-white p-2'}"
+                                  th:text="${user.status}">AKTİV</span>
+                        </dd>
+
+                        <dt class="col-sm-4">Cari Rol:</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-warning text-dark p-2" th:text="${user.roleName}">MÜŞTƏRİ</span>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+
+            <div class="card shadow mb-4 border-left-warning">
+                <div class="card-header py-3 bg-warning text-dark">
+                    <h6 class="m-0 font-weight-bold"><i class="fas fa-user-tag me-2"></i> Rolu Yenilə</h6>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/users/update-role}" method="post">
+                        <input type="hidden" name="userId" th:value="${user.id}">
+
+                        <div class="mb-3">
+                            <label for="newRole" class="form-label font-weight-bold">Yeni Rol Seçin:</label>
+                            <select id="newRole" name="newRole" class="form-control shadow-sm">
+                                <option th:each="roleName : ${availableRoles}"
+                                        th:value="${roleName}"
+                                        th:text="${roleName}"
+                                        th:selected="${roleName == currentRole}">
+                                </option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-warning btn-block mt-3 shadow-sm"><i class="fas fa-sync-alt"></i> Rolu Dəyişdir</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4 border-left-danger">
+                <div class="card-header py-3 bg-danger text-white">
+                    <h6 class="m-0 font-weight-bold"><i class="fas fa-ban me-2"></i> Statusu Yenilə</h6>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/users/update-status}" method="post">
+                        <input type="hidden" name="userId" th:value="${user.id}">
+
+                        <div class="mb-3">
+                            <label for="newStatus" class="form-label font-weight-bold">Yeni Status Seçin:</label>
+                            <select id="newStatus" name="newStatus" class="form-control shadow-sm">
+                                <option th:each="status : ${availableStatuses}"
+                                        th:value="${status}"
+                                        th:text="${status}"
+                                        th:selected="${status == user.status}">
+                                </option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-danger btn-block mt-3 shadow-sm"><i class="fas fa-exclamation-triangle"></i> Statusu Dəyişdir</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

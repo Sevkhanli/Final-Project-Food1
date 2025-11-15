@@ -1,5 +1,6 @@
 package az.edu.itbrains.food.models;
 
+import az.edu.itbrains.food.enums.Status;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,10 @@ public class User {
     private String name;
     private String surname;
 
+    @Enumerated(EnumType.STRING) // Status üçün Enum istifadə etmək məsləhətdir
+    @Column(nullable = false, length = 10)
+    private Status status = Status.AKTİV; // Default olaraq aktiv
+
     @Email(message = "email duzgun deyil")
     @Column(name = "email", nullable = false, unique = true)
     private String email;
@@ -39,5 +44,8 @@ public class User {
 
     public String getFullName() {
         return name + " " + surname;
+
+
+
     }
 }

@@ -7,6 +7,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -15,6 +17,21 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    // ⭐ Yeni Bean: AuthenticationFailureHandler - Bloklanmanı ayırmaq üçün
+    @Bean
+    public AuthenticationFailureHandler customFailureHandler() {
+        return (request, response, exception) -> {
+            String redirectUrl = "/login?error"; // Default xəta: yanlış email/şifrə
+
+            // Əgər istisna DisabledException-dırsa, xüsusi URL-ə yönləndir
+            if (exception instanceof DisabledException) {
+                redirectUrl = "/login?blocked"; // Bloklanma halı üçün
+            }
+
+            response.sendRedirect(request.getContextPath() + redirectUrl);
+        };
     }
 
     @Bean
@@ -39,7 +56,8 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
                         .defaultSuccessUrl("/")
-                        .failureUrl("/login?error")
+                        // ⭐ DÜZƏLİŞ: Custom Failure Handler-i qoşuruq
+                        .failureHandler(customFailureHandler())
                         .permitAll()
                 )
                 .logout(logout -> logout

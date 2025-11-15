@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
@@ -21,7 +22,12 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("SELECT SUM(o.totalPrice) FROM Order o WHERE o.orderDate >= :startOfToday")
     Double sumTotalPriceSince(LocalDateTime startOfToday);
 
+    @Query("SELECT SUM(o.totalPrice) FROM Order o")
+    Optional<Double> sumTotalRevenue();
     List<Order> findTop5ByOrderByOrderDateDesc();
 
     List<Order> findAllByOrderByOrderDateDesc();
+
+
+    long countByOrderStatus(String orderStatus);
 }

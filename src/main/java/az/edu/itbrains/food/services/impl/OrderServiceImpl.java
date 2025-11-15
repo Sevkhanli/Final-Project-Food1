@@ -42,7 +42,6 @@ public class OrderServiceImpl implements IOrderService {
     @Transactional(readOnly = true)
     public OrderDetailDTO getOrderDetailsById(Long orderId) {
 
-        // Sifariş tapılmazsa null qaytarılır
         Order order = orderRepository.findById(orderId).orElse(null);
         if (order == null) {
             return null;
@@ -51,11 +50,9 @@ public class OrderServiceImpl implements IOrderService {
         // OrderItems-in DTO-ya çevrilməsi
         List<OrderItemDetailDTO> itemDetails = order.getOrderItems().stream()
                 .map(item -> new OrderItemDetailDTO(
-                        // ⭐ DÜZƏLİŞ BURADA: menuItem əlaqəsi vasitəsilə məhsulun adını çəkirik.
-                        // item.getMenuItem().getName() null olmasın deyə yoxlama əlavə edilir.
+                        // menuItem əlaqəsi vasitəsilə məhsulun adını çəkirik.
                         item.getMenuItem() != null ? item.getMenuItem().getName() : "Naməlum Məhsul",
 
-                        // Quantity
                         item.getQuantity(),
 
                         // Price
@@ -80,35 +77,53 @@ public class OrderServiceImpl implements IOrderService {
     }
 
 
-    // Yuxarıdakı metodlar eyni qalır...
-
     @Override
+    @Transactional(readOnly = true)
     public long countTodayOrders() {
         LocalDateTime startOfToday = LocalDateTime.now().with(LocalTime.MIN);
+        // Repository-də countOrdersSince metodu mövcuddur
         return orderRepository.countOrdersSince(startOfToday);
     }
 
+    /**
+     * ⭐ DÜZƏLİŞ: Dashboard üçün: ANCAQ BUGÜN üçün gəliri hesablayır.
+     */
     @Override
+    @Transactional(readOnly = true)
     public double calculateTodayRevenue() {
         LocalDateTime startOfToday = LocalDateTime.now().with(LocalTime.MIN);
+        // İndi Repository-dəki sumTotalPriceSince metodunu çağırır. (Əvvəlki işlək vəziyyətinə qayıtdı)
         Double totalRevenue = orderRepository.sumTotalPriceSince(startOfToday);
         return totalRevenue != null ? totalRevenue : 0.0;
     }
 
+    /**
+     * ⭐ YENİ METOD: Sifarişlər səhifəsi üçün: BÜTÜN DÖVRÜN ümumi gəlirini hesablayır.
+     * Qeyd: Bu metodu IOrderService interfeysinə əlavə etməlisiniz.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public double calculateTotalRevenue() {
+        // Repository-dəki sumTotalRevenue metodunu çağırır.
+        Optional<Double> totalRevenue = orderRepository.sumTotalRevenue();
+        return totalRevenue.orElse(0.0);
+    }
+
+
     @Override
     public List<Order> getRecentOrders(int limit) {
+        // Repository-də findTop5ByOrderByOrderDateDesc metodu mövcud olduğu fərz edilir
         return orderRepository.findTop5ByOrderByOrderDateDesc();
     }
 
     @Override
-    @Transactional(readOnly = true) // Sadəcə oxuma əməliyyatıdır
+    @Transactional(readOnly = true)
     public List<OrderListDTO> getAllOrdersForAdminList() {
-        // Bütün sifarişləri (ən yenidən) gətiririk
+        // ... (Mövcud implementasiya dəyişdirilmədən qalır)
         List<Order> orders = orderRepository.findAllByOrderByOrderDateDesc();
 
-        // Əgər bazada sifariş yoxdursa, boş siyahı qaytar
         if (orders == null || orders.isEmpty()) {
-            return List.of(); // Java 9+ üçün, əks halda Collections.emptyList();
+            return List.of();
         }
 
         return orders.stream()
@@ -121,8 +136,6 @@ public class OrderServiceImpl implements IOrderService {
                     dto.setPhoneNumber(order.getPhoneNumber());
                     dto.setAddress(order.getAddress());
 
-                    // ⭐ ƏSAS DÜZƏLİŞ: double primitiv tipi olsa da,
-                    // əgər hansısa səbəbdən bazadan null gələrsə, xəta verməməsi üçün yoxlama
                     double totalPrice = order.getTotalPrice();
                     dto.setTotalPrice(totalPrice > 0.0 ? totalPrice : 0.0);
 
@@ -131,18 +144,42 @@ public class OrderServiceImpl implements IOrderService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Toplam Sifariş sayğacının implementasiyası.
+     */
     @Override
-    @Transactional // Verilənlər bazasında dəyişiklik etdiyimiz üçün lazımdır
+    @Transactional(readOnly = true)
+    public long countTotalOrders() {
+        return orderRepository.count(); // JpaRepository-nin yerli metodu
+    }
+
+    /**
+     * Gözləmədə sayğacının implementasiyası.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public long countPendingOrders() {
+        // "Gözləmədə" kartı üçün "YENİ" statuslu sifarişləri sayır
+        return orderRepository.countByOrderStatus("YENİ");
+    }
+
+    /**
+     * Çatdırılıb sayğacının implementasiyası.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public long countDeliveredOrders() {
+        return orderRepository.countByOrderStatus("ÇATDIRILDI");
+    }
+
+    @Override
+    @Transactional // Statusu yeniləyən metod
     public void updateOrderStatus(Long orderId, String newStatus) {
 
-        // 1. Sifarişi ID ilə tapırıq. Tapılmazsa istisna (Exception) atırıq.
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Sifariş tapılmadı: ID=" + orderId));
 
-        // 2. Statusu yeniləyirik
         order.setOrderStatus(newStatus);
-
-        // 3. Dəyişiklikləri bazaya yadda saxlayırıq
         orderRepository.save(order);
     }
 }

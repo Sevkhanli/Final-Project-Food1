@@ -29,8 +29,17 @@ public class AdminOrderController {
         List<OrderListDTO> orders = orderService.getAllOrdersForAdminList();
         model.addAttribute("orders", orders);
 
+        // ⭐ DÜZƏLİŞ: Sifarişlər səhifəsində (cards-da) ÜMUMİ GƏLİR istifadə olunmalıdır.
+        model.addAttribute("totalOrdersCount", orderService.countTotalOrders());
+        model.addAttribute("deliveredCount", orderService.countDeliveredOrders());
+        model.addAttribute("pendingCount", orderService.countPendingOrders());
+
+        // 🛑 calculateTodayRevenue() YOX, calculateTotalRevenue() OLMALIDIR!
+        model.addAttribute("totalRevenue", orderService.calculateTotalRevenue());
+
         return "dashboard/order-list/index";
     }
+
 
     /**
      * Sifarişin Detallarına Baxmaq üçün metod (URL: /admin/orders/details/{id}) - Sizin mövcud yolla saxlanılıb

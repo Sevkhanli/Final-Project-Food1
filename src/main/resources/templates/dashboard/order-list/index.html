@@ -300,7 +300,7 @@
                 </div>
                 <div class="stat-content">
                     <div class="stat-label">Toplam Sifariş</div>
-                    <div class="stat-value" th:text="${#lists.size(orders)}">0</div>
+                    <div class="stat-value" th:text="${totalOrdersCount}">0</div>
                 </div>
             </div>
 
@@ -310,7 +310,7 @@
                 </div>
                 <div class="stat-content">
                     <div class="stat-label">Çatdırılıb</div>
-                    <div class="stat-value">0</div>
+                    <div class="stat-value" th:text="${deliveredCount}">0</div>
                 </div>
             </div>
 
@@ -320,7 +320,7 @@
                 </div>
                 <div class="stat-content">
                     <div class="stat-label">Gözləmədə</div>
-                    <div class="stat-value">0</div>
+                    <div class="stat-value" th:text="${pendingCount}">0</div>
                 </div>
             </div>
 
@@ -330,7 +330,8 @@
                 </div>
                 <div class="stat-content">
                     <div class="stat-label">Toplam Gəlir</div>
-                    <div class="stat-value">0 ₼</div>
+                    <div class="stat-value"
+                         th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 2, 'POINT')} + ' ₼'">0 ₼</div>
                 </div>
             </div>
         </div>

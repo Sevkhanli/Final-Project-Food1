@@ -8,6 +8,7 @@ import az.edu.itbrains.food.repositories.CustomerRepository;
 import az.edu.itbrains.food.repositories.ReservationRepository;
 import az.edu.itbrains.food.services.IReservationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,8 +49,12 @@ public class ReservationServiceImpl implements IReservationService {
     // ⭐ YENİ METOD: Bütün reservasiyaları gətirmək
     @Override
     public List<Reservation> getAllReservations() {
-        return reservationRepository.findAll();
-    }
+        Sort sort = Sort.by(
+                Sort.Order.desc("reservationDate"), // Ən yeni tarix yuxarıda
+                Sort.Order.desc("reservationTime")  // Eyni tarix üçün ən yeni saat yuxarıda
+        );
+        return reservationRepository.findAll(sort); // Bu metod çağırılmalıdır!
+            }
 
     @Override
     public Reservation getReservationById(Long id) {

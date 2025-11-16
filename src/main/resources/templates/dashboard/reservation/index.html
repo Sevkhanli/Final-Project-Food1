@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="az" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{dashboard/layout}">
+<head>
+    <title>Rezervasiyaların Siyahısı</title>
+</head>
+<body>
+
+<div layout:fragment="page-header">
+    <h1 class="h3 mb-0 text-gray-800">Rezervasiyalar</h1>
+</div>
+
+<div layout:fragment="content">
+
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:utext="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:utext="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Bütün Rezervasiyalar</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Müştəri</th>
+                        <th>Telefon</th>
+                        <th>Tarix</th>
+                        <th>Saat</th>
+                        <th>Şəxslərin Sayı</th>
+                        <th>Status</th>
+                        <th>Əməliyyatlar</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="reservation : ${reservations}">
+                        <td th:text="${reservation.id}">1</td>
+                        <td th:text="${reservation.customer.name}">Əli Əliyev</td>
+                        <td th:text="${reservation.customer.phoneNumber}">+994 50 123 45 67</td>
+                        <td th:text="${#temporals.format(reservation.reservationDate, 'dd.MM.yyyy')}">16.11.2025</td>
+                        <td th:text="${#temporals.format(reservation.reservationTime, 'HH:mm')}">14:00</td>
+                        <td th:text="${reservation.numberOfPeople}">4</td>
+                        <td>
+                            <span th:class="${reservation.status.name() == 'TESDIQLENIB' ? 'badge bg-success' :
+                                            (reservation.status.name() == 'GOZLEMEDE' ? 'badge bg-warning text-dark' :
+                                            'badge bg-danger')}"
+                                  th:text="${reservation.status.azName}">Gözləmədə</span>
+                        </td>
+                        <td>
+                            <a th:href="@{/admin/reservations/{id}(id=${reservation.id})}" class="btn btn-sm btn-info me-2" title="Detalları gör">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a th:href="@{/admin/reservations/edit-status/{id}(id=${reservation.id})}" class="btn btn-sm btn-warning me-2" title="Statusu redaktə et">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a th:href="@{/admin/reservations/delete/{id}(id=${reservation.id})}"
+                               onclick="return confirm('Əminsinizmi? Bu rezervasiya silinəcək!')"
+                               class="btn btn-sm btn-danger" title="Sil">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="az" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{dashboard/layout}">
+<head>
+    <title>Rezervasiya Statusunu Redaktə Et</title>
+</head>
+<body>
+
+<div layout:fragment="page-header">
+    <h1 class="h3 mb-0 text-gray-800">Rezervasiya Statusunu Redaktə Et - #<span th:text="${reservation.id}">1</span></h1>
+</div>
+
+<div layout:fragment="content">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Yeni Statusu Seçin</h6>
+                </div>
+                <div class="card-body">
+
+                    <p>
+                        **Cari Status:**
+                        <span th:class="${reservation.status.name() == 'TESDIQLENIB' ? 'badge bg-success' :
+                                        (reservation.status.name() == 'GOZLEMEDE' ? 'badge bg-warning text-dark' :
+                                        'badge bg-danger')}"
+                              th:text="${reservation.status.azName}">Gözləmədə</span>
+                    </p>
+
+                    <form th:action="@{/admin/reservations/update-status/{id}(id=${reservation.id})}" method="post">
+
+                        <div class="mb-3">
+                            <label for="newStatus" class="form-label">Yeni Status</label>
+                            <select id="newStatus" name="newStatus" class="form-select" required>
+                                <option th:each="status : ${statuses}"
+                                        th:value="${status}"
+                                        th:text="${T(az.edu.itbrains.food.enums.ReservationStatus).valueOf(status).getAzName()}"
+                                        th:selected="${reservation.status.name() == status}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="bi bi-arrow-repeat"></i> Statusu Yenilə
+                        </button>
+                        <a th:href="@{/admin/reservations}" class="btn btn-secondary">Ləğv Et</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,32 +1,30 @@
 package az.edu.itbrains.food.services.impl;
 
 import az.edu.itbrains.food.DTOs.request.ReservationRequestDTO;
+import az.edu.itbrains.food.enums.ReservationStatus;
 import az.edu.itbrains.food.models.Customer;
 import az.edu.itbrains.food.models.Reservation;
 import az.edu.itbrains.food.repositories.CustomerRepository;
 import az.edu.itbrains.food.repositories.ReservationRepository;
 import az.edu.itbrains.food.services.IReservationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ReservationServiceImpl implements IReservationService {
 
     private final ReservationRepository reservationRepository;
-
-
     private final CustomerRepository customerRepository;
 
-
-
+    @Override
     @Transactional
     public void createReservation(ReservationRequestDTO reservationRequestDTO) {
-        // 1. Müştəri məlumatlarını yoxla və ya yenisini yarat
+
         Customer customer = customerRepository.findByEmail(reservationRequestDTO.getCustomerEmail())
                 .orElseGet(() -> {
                     Customer newCustomer = new Customer();
@@ -36,18 +34,42 @@ public class ReservationServiceImpl implements IReservationService {
                     return customerRepository.save(newCustomer);
                 });
 
-        // 2. Yeni rezervasiyanı yarat
         Reservation reservation = new Reservation();
         reservation.setCustomer(customer);
         reservation.setReservationDate(reservationRequestDTO.getReservationDate());
         reservation.setReservationTime(reservationRequestDTO.getReservationTime());
         reservation.setNumberOfPeople(reservationRequestDTO.getNumberOfPeople());
-        reservation.setStatus("pending");
+        // ⭐ DÜZƏLİŞ: Enum dəyəri təyin edilir
+        reservation.setStatus(ReservationStatus.GOZLEMEDE);
 
-        // 3. Verilənlər bazasına yaz
         reservationRepository.save(reservation);
     }
+
+    // ⭐ YENİ METOD: Bütün reservasiyaları gətirmək
+    @Override
+    public List<Reservation> getAllReservations() {
+        return reservationRepository.findAll();
+    }
+
+    @Override
+    public Reservation getReservationById(Long id) {
+        return reservationRepository.findById(id).orElse(null);
+    }
+
+    // ⭐ YENİ METOD: Statusu yeniləmək
+    @Override
+    public Reservation updateReservationStatus(Long id, ReservationStatus status) {
+        Optional<Reservation> optionalReservation = reservationRepository.findById(id);
+        if (optionalReservation.isPresent()) {
+            Reservation reservation = optionalReservation.get();
+            reservation.setStatus(status);
+            return reservationRepository.save(reservation);
+        }
+        return null;
+    }
+
+    @Override
+    public void deleteReservation(Long id) {
+            reservationRepository.deleteById(id);
+    }
 }
-
-
-

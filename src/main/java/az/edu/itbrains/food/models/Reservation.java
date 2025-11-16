@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
+import az.edu.itbrains.food.enums.ReservationStatus;
 
 @Getter
 @Setter
@@ -21,7 +21,6 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Many-to-One əlaqəsi: Bir müştərinin birdən çox rezervasiyası ola bilər
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
@@ -34,5 +33,8 @@ public class Reservation {
     @Column(name = "number_of_people")
     private int numberOfPeople;
 
-    private String status; // 'pending', 'confirmed', 'cancelled'
+    // ⭐ DÜZƏLİŞ: String yerinə Enum və default dəyər
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private ReservationStatus status = ReservationStatus.GOZLEMEDE;
 }

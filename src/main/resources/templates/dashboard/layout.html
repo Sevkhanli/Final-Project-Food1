@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="az" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -12,8 +11,8 @@
     <style>
         :root {
             --sidebar-width: 260px;
-            --ff-primary-color: #ff6600; /* Vurğu Rəngi (Narıncı) */
-            --ff-dark-color: #212529; /* Tünd (Sidebar) Rəngi */
+            --ff-primary-color: #ff6600;
+            --ff-dark-color: #212529;
         }
         .sidebar {
             width: var(--sidebar-width);
@@ -36,7 +35,6 @@
             padding: 12px 20px;
             transition: background-color 0.2s, color 0.2s;
         }
-        /* Controller-dəki 'currentUri' modelini yoxlayaraq aktiv klassı təyin edir */
         .sidebar .nav-link:hover, .sidebar .nav-link.active {
             color: white;
             background-color: var(--ff-primary-color);
@@ -90,6 +88,13 @@
                 <i class="bi bi-bar-chart-line"></i> Hesabatlar
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/admin/reservations}"
+               th:classappend="${currentUri.startsWith('/admin/reservations') ? 'active' : ''}">
+                <i class="bi bi-calendar-check"></i> Rezervasiyalar
+            </a>
+        </li>
+
         <li class="nav-item mt-5">
             <a class="nav-link" th:href="@{/}">
                 <i class="bi bi-box-arrow-left"></i> Sayta Qayıt
@@ -101,8 +106,7 @@
 <div class="main-content">
     <h1 class="mb-4" layout:fragment="page-header">Dashboard</h1>
 
-    <div layout:fragment="content">
-    </div>
+    <div layout:fragment="content"></div>
 
     <footer class="mt-5 pt-3 border-top text-center text-muted">
         <p>&copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2025</span> FF Restaurant Admin Panel.</p>

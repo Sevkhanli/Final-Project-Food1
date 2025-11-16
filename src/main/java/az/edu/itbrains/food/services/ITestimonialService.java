@@ -11,4 +11,5 @@ public interface ITestimonialService {
     // Yeni rəyi saxlamaq üçün
     void save(Testimonial testimonial);
 
+    void delete(Long id);
 }

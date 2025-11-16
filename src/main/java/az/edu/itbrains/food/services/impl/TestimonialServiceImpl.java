@@ -31,4 +31,9 @@ public class TestimonialServiceImpl implements ITestimonialService {
     public void save(Testimonial testimonial) {
         testimonialRepository.save(testimonial);
     }
+
+    @Override
+    public void delete(Long id) {
+        testimonialRepository.deleteById(id);
+    }
 }

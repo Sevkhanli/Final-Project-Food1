@@ -95,6 +95,13 @@
             </a>
         </li>
 
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/admin/testimonials}"
+               th:classappend="${currentUri.startsWith('/admin/testimonials') ? 'active' : ''}">
+                <i class="bi bi-chat-dots"></i> Rəylər
+            </a>
+        </li>
+
         <li class="nav-item mt-5">
             <a class="nav-link" th:href="@{/}">
                 <i class="bi bi-box-arrow-left"></i> Sayta Qayıt

@@ -120,13 +120,25 @@
             <div class="col-md-4 footer-col">
                 <div class="footer_detail">
                     <a href="" class="footer-logo">Feane</a>
-                    <p>Necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words, combined with</p>
-                    <div class="footer_social">
-                        <a href=""><i class="fa fa-facebook" aria-hidden="true"></i></a>
-                        <a href=""><i class="fa fa-twitter" aria-hidden="true"></i></a>
-                        <a href=""><i class="fa fa-linkedin" aria-hidden="true"></i></a>
-                        <a href=""><i class="fa fa-instagram" aria-hidden="true"></i></a>
-                        <a href=""><i class="fa fa-pinterest" aria-hidden="true"></i></a>
+                    <p th:text="${restaurantInfo?.description} ?: 'Restoran haqqında məlumat yüklənməyib.'">
+                        Necessary, making this the first true generator on the Internet...
+                    </p>
+
+                    <div class="footer_social" th:if="${footerSettings != null}">
+                        <a th:if="${footerSettings.facebookUrl}" th:href="${footerSettings.facebookUrl}" target="_blank">
+                            <i class="fa fa-facebook" aria-hidden="true"></i>
+                        </a>
+                        <a th:if="${footerSettings.twitterUrl}" th:href="${footerSettings.twitterUrl}" target="_blank">
+                            <i class="fa fa-twitter" aria-hidden="true"></i>
+                        </a>
+                        <a th:if="${footerSettings.linkedinUrl}" th:href="${footerSettings.linkedinUrl}" target="_blank">
+                            <i class="fa fa-linkedin" aria-hidden="true"></i>
+                        </a>
+                        <a th:if="${footerSettings.instagramUrl}" th:href="${footerSettings.instagramUrl}" target="_blank">
+                            <i class="fa fa-instagram" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                    <div class="footer_social" th:unless="${footerSettings != null}">
                     </div>
                 </div>
             </div>
@@ -138,10 +150,12 @@
         </div>
         <div class="footer-info">
             <p>
-                &copy; <span id="displayYear"></span> All Rights Reserved By
-                <a href="https://html.design/">Free Html Templates</a><br><br>
-                &copy; <span id="displayYears"></span> Distributed By
-                <a href="https://themewagon.com/" target="_blank">ThemeWagon</a>
+                <span th:if="${footerSettings != null}" th:utext="${footerSettings.copyrightText}">
+                    </span>
+                <span th:unless="${footerSettings != null}">
+                    &copy; <span id="displayYear"></span> All Rights Reserved By
+                    <a href="https://html.design/">Free Html Templates</a>
+                </span>
             </p>
         </div>
     </div>

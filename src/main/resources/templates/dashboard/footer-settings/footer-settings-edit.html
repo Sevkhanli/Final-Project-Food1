@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="az" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{dashboard/layout}">
+<head>
+    <title>Footer Parametrləri</title>
+</head>
+<body>
+
+<div layout:fragment="page-header">
+    <h1 class="h3 mb-0 text-gray-800">Footer Parametrləri</h1>
+</div>
+
+<div layout:fragment="content">
+
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:utext="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Altlıq (Footer) Və Sosial Media Linkləri</h6>
+        </div>
+        <div class="card-body">
+
+            <form th:action="@{/admin/footer-settings/save}" th:object="${footerSettings}" method="post">
+
+                <input type="hidden" th:field="*{id}" />
+
+                <h5 class="mt-3">Statik Məlumat</h5>
+                <hr>
+                <div class="mb-3">
+                    <label for="copyrightText" class="form-label">Copyright Mətni:</label>
+                    <input type="text" class="form-control" id="copyrightText" th:field="*{copyrightText}">
+                    <div class="form-text">Məsələn: &copy; 2025 Food. Bütün hüquqlar qorunur.</div>
+                </div>
+
+                <h5 class="mt-4">Sosial Media Linkləri</h5>
+                <hr>
+                <div class="mb-3">
+                    <label for="facebookUrl" class="form-label">Facebook URL:</label>
+                    <input type="url" class="form-control" id="facebookUrl" th:field="*{facebookUrl}" placeholder="https://facebook.com/istifadeciadi">
+                </div>
+                <div class="mb-3">
+                    <label for="instagramUrl" class="form-label">Instagram URL:</label>
+                    <input type="url" class="form-control" id="instagramUrl" th:field="*{instagramUrl}" placeholder="https://instagram.com/istifadeciadi">
+                </div>
+                <div class="mb-3">
+                    <label for="twitterUrl" class="form-label">Twitter/X URL:</label>
+                    <input type="url" class="form-control" id="twitterUrl" th:field="*{twitterUrl}" placeholder="https://twitter.com/istifadeciadi">
+                </div>
+                <div class="mb-3">
+                    <label for="linkedinUrl" class="form-label">LinkedIn URL:</label>
+                    <input type="url" class="form-control" id="linkedinUrl" th:field="*{linkedinUrl}" placeholder="https://linkedin.com/in/istifadeciadi">
+                </div>
+
+                <button type="submit" class="btn btn-success mt-3">
+                    <i class="bi bi-save"></i> Parametrləri Saxla
+                </button>
+                <a th:href="@{/dashboard}" class="btn btn-secondary mt-3">Ləğv Et</a>
+
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

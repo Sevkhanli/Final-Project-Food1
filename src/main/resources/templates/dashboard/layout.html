@@ -102,6 +102,13 @@
             </a>
         </li>
 
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/admin/restaurant-info}"
+               th:classappend="${currentUri.startsWith('/admin/restaurant-info') ? 'active' : ''}">
+                <i class="bi bi-gear"></i> Restoran Məlumatı
+            </a>
+        </li>
+
         <li class="nav-item mt-5">
             <a class="nav-link" th:href="@{/}">
                 <i class="bi bi-box-arrow-left"></i> Sayta Qayıt

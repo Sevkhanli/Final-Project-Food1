@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="az" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{dashboard/layout}">
+<head>
+    <title>Restoran Məlumatları</title>
+</head>
+<body>
+
+<div layout:fragment="page-header">
+    <h1 class="h3 mb-0 text-gray-800">Restoran Məlumatlarının Redaktəsi</h1>
+</div>
+
+<div layout:fragment="content">
+
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:utext="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:utext="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary" th:text="${isNew ? 'Yeni Məlumat Yarat' : 'Məlumatı Redaktə Et'}">
+                Restoran Məlumatı</h6>
+        </div>
+        <div class="card-body">
+
+            <form th:action="@{/admin/restaurant-info/save}" th:object="${restaurantInfo}" method="post">
+
+                <input type="hidden" th:field="*{id}" />
+                <input type="hidden" name="isNew" th:value="${isNew}" />
+
+                <div class="mb-3">
+                    <label for="title" class="form-label">Restoranın Adı/Başlığı:</label>
+                    <input type="text" class="form-control" id="title" th:field="*{title}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Təsvir (Haqqımızda/Qısa Məlumat):</label>
+                    <textarea class="form-control" id="description" th:field="*{description}" rows="5" required></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-save"></i> Məlumatı Saxla
+                </button>
+                <a th:href="@{/dashboard}" class="btn btn-secondary">Ləğv Et</a>
+
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

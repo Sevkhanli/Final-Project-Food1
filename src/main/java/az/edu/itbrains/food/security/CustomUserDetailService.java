@@ -24,19 +24,30 @@ public class CustomUserDetailService  implements UserDetailsService {
 
         if (user != null){
 
-            // ⭐ ƏSAS YOXLAMA: Bloklanma halında DisabledException atılır
-            if (user.getStatus() == Status.BLOKLANIB) {
-                // Xüsusi xəta handler-də fərqləndirilməsi üçün DisabledException atılır
-                throw new DisabledException("Hesabınız bloklanmışdır!");
+            // ⭐ ƏSAS YOXLAMA: İstifadəçinin statusunu yoxlayırıq.
+            if (user.getStatus() != Status.AKTİV) {
+
+                String errorMessage;
+
+                if (user.getStatus() == Status.GÖZLƏMƏDƏ) {
+                    errorMessage = "Hesabınız təsdiqlənməyib. Lütfən e-poçtunuza göndərilən kodu daxil edin.";
+                } else if (user.getStatus() == Status.BLOKLANIB) {
+                    errorMessage = "Hesabınız bloklanmışdır!";
+                } else {
+                    errorMessage = "Hesabınız aktiv deyil.";
+                }
+
+                // DisabledException atılır, bu da Spring Security tərəfindən login səhifəsində idarə edilə bilər.
+                throw new DisabledException(errorMessage);
             }
 
-            // Bloklanmayıbsa, aktiv olaraq girişə icazə veririk
+            // Status AKTİV-dirsə, girişə icazə verilir.
             boolean isEnabled = true;
 
             org.springframework.security.core.userdetails.User loggedUser = new org.springframework.security.core.userdetails.User(
                     user.getEmail(),
                     user.getPassword(),
-                    isEnabled,
+                    isEnabled, // Enabled = True (çünki biz DisabledException atmadıq)
                     true,
                     true,
                     true,

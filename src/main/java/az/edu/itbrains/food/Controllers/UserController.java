@@ -1,19 +1,20 @@
 package az.edu.itbrains.food.Controllers;
 
 import az.edu.itbrains.food.DTOs.request.UserDTO.RegisterDTO;
-import az.edu.itbrains.food.services.IUserService; // Interfeysin adı
-
+import az.edu.itbrains.food.enums.Status;
+import az.edu.itbrains.food.services.IUserService;
+import az.edu.itbrains.food.services.OtpService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model; // Model importu əlavə olunub
-import org.springframework.web.bind.annotation.*; // Bütün lazımi annotasiyalar üçün
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequiredArgsConstructor // userService üçün
+@RequiredArgsConstructor
 public class UserController {
 
-    // İnterfeys üzərindən işləmək daha yaxşıdır
     private final IUserService userService;
+    private final OtpService otpService;
 
     @GetMapping("/login")
     public String login() {
@@ -22,7 +23,6 @@ public class UserController {
 
     @GetMapping("/register")
     public String register(Model model) {
-        // Form üçün boş bir DTO obyekti View-a ötürülməlidir
         model.addAttribute("registerDTO", new RegisterDTO());
         return "/register";
     }
@@ -30,21 +30,37 @@ public class UserController {
     @PostMapping("/register")
     public String register(@ModelAttribute("registerDTO") RegisterDTO registerDTO, Model model) {
         try {
-            // 1. Qeydiyyatı həyata keçir
             userService.registerUser(registerDTO);
-
-            // 2. Uğurlu qeydiyyatdan sonra "Login" səhifəsinə yönləndir
-            return "redirect:/login";
-
+            return "redirect:/verify-otp?email=" + registerDTO.getEmail();
         } catch (RuntimeException e) {
-            // 3. Xəta baş verərsə (məsələn, Email artıq var)
-
-            // İstifadəçiyə göstərmək üçün xəta mesajını modelə əlavə et
             model.addAttribute("error", e.getMessage());
-
-            // Xəta mesajı ilə birlikdə qeydiyyat səhifəsinə geri dön
             return "/register";
         }
     }
 
+    @GetMapping("/verify-otp")
+    public String getOtpVerificationPage(@RequestParam String email, Model model) {
+        model.addAttribute("email", email);
+        return "/otp-verification-page";
+    }
+
+    @PostMapping("/verify-otp")
+    public String verifyOtp(@RequestParam String email, @RequestParam String otpCode, Model model) {
+        try {
+            if (otpService.validateOtp(email, otpCode)) {
+                // Təsdiqləmə uğurlu oldu
+                userService.updateUserStatusByEmail(email, Status.AKTİV);
+                return "redirect:/login?verified";
+            } else {
+                // Təsdiqləmə uğursuz oldu (Yanlış Kod və ya Vaxtı Keçib)
+                model.addAttribute("error", "Yanlış və ya vaxtı keçmiş təsdiqləmə kodu!");
+                model.addAttribute("email", email);
+                return "/otp-verification-page";
+            }
+        } catch (Exception e) {
+            model.addAttribute("error", "Təsdiqləmə zamanı xəta: " + e.getMessage());
+            model.addAttribute("email", email);
+            return "/otp-verification-page";
+        }
+    }
 }

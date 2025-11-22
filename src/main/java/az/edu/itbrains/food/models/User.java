@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,7 +25,7 @@ public class User {
 
     @Enumerated(EnumType.STRING) // Status üçün Enum istifadə etmək məsləhətdir
     @Column(nullable = false, length = 10)
-    private Status status = Status.AKTİV; // Default olaraq aktiv
+    private Status status = Status.GÖZLƏMƏDƏ; // 👈 DƏYİŞİKLİK: Default olaraq GÖZLƏMƏDƏ qoyulur
 
     @Email(message = "email duzgun deyil")
     @Column(name = "email", nullable = false, unique = true)
@@ -44,8 +43,5 @@ public class User {
 
     public String getFullName() {
         return name + " " + surname;
-
-
-
     }
 }

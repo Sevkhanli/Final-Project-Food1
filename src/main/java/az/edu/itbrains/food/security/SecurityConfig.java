@@ -19,15 +19,15 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // ⭐ Yeni Bean: AuthenticationFailureHandler - Bloklanmanı ayırmaq üçün
     @Bean
     public AuthenticationFailureHandler customFailureHandler() {
         return (request, response, exception) -> {
-            String redirectUrl = "/login?error"; // Default xəta: yanlış email/şifrə
+            String redirectUrl = "/login?error";
 
-            // Əgər istisna DisabledException-dırsa, xüsusi URL-ə yönləndir
             if (exception instanceof DisabledException) {
-                redirectUrl = "/login?blocked"; // Bloklanma halı üçün
+                // DisabledException həm BLOKLANIB, həm də GÖZLƏMƏDƏ statusları üçün atılır.
+                // Qeyd: Bu handler yalnız "/login" POST sorğusu uğursuz olduqda işləyir.
+                redirectUrl = "/login?blocked";
             }
 
             response.sendRedirect(request.getContextPath() + redirectUrl);
@@ -37,13 +37,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // CSRF-i /verify-otp POST-u üçün deaktiv etmirik, lakin əmin oluruq ki, Thymeleaf-də token var.
                 .authorizeHttpRequests(auth -> auth
                         // ADMIN-lər üçün dashboard və admin panel icazəsi
                         .requestMatchers("/admin/**", "/dashboard/**").hasRole("ADMIN")
 
-                        // Qeydiyyat və login açıq olsun
+                        // 🏆 ƏSAS DÜZƏLİŞ: Qeydiyyat, login VƏ OTP TƏSDİQLƏNMƏSİ açıq olsun.
+                        // Bura həm GET, həm də POST /verify-otp daxildir.
                         .requestMatchers("/", "/register", "/login", "/front/**", "/menu", "/about",
-                                "/css/**", "/js/**", "/order-success"
+                                "/css/**", "/js/**", "/order-success",
+                                "/verify-otp"
                         ).permitAll()
 
                         // İstifadəçi üçün qorunan endpoint-lər
@@ -56,7 +59,6 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
                         .defaultSuccessUrl("/")
-                        // ⭐ DÜZƏLİŞ: Custom Failure Handler-i qoşuruq
                         .failureHandler(customFailureHandler())
                         .permitAll()
                 )

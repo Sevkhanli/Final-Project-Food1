@@ -3,6 +3,7 @@ package az.edu.itbrains.food.services;
 import az.edu.itbrains.food.DTOs.DashboardDTO.UserDetailDTO;
 import az.edu.itbrains.food.DTOs.DashboardDTO.UserListDTO;
 import az.edu.itbrains.food.DTOs.request.UserDTO.RegisterDTO;
+import az.edu.itbrains.food.enums.Status; // Status enum-unu import edin
 import az.edu.itbrains.food.models.User;
 
 import java.util.List;
@@ -23,14 +24,16 @@ public interface IUserService {
     UserDetailDTO getUserDetailsById(Long id);
 
     void updateUserRole(Long userId, String newRoleName);
-    // Status Entity-də olmadığı üçün bu metod implementasiya edilməyəcək, amma interfeysdə qalır.
-    // void updateUserStatus(Long userId, String newStatus);
 
-    Set<String> getAllRoleNames();
-    Long countAllUsers();    //TODO Dashboard üçün Ümumi İstifadəçi Sayını almaq
-    Long countActiveUsers();
-    Long countBlockedUsers();
-    Long countAdminUsers(); // Yeni
+    // Admin paneldən ID ilə status yenilənməsi
     void updateUserStatus(Long userId, String newStatus);
 
+    // 👈 YENİ METOD: OTP təsdiqlənməsi üçün Email ilə status yenilənməsi
+    void updateUserStatusByEmail(String email, Status newStatus);
+
+    Set<String> getAllRoleNames();
+    Long countAllUsers();
+    Long countActiveUsers();
+    Long countBlockedUsers();
+    Long countAdminUsers();
 }

@@ -138,8 +138,6 @@
                             <i class="fa fa-instagram" aria-hidden="true"></i>
                         </a>
                     </div>
-                    <div class="footer_social" th:unless="${footerSettings != null}">
-                    </div>
                 </div>
             </div>
             <div class="col-md-4 footer-col">
@@ -152,6 +150,7 @@
             <p>
                 <span th:if="${footerSettings != null}" th:utext="${footerSettings.copyrightText}">
                     </span>
+
                 <span th:unless="${footerSettings != null}">
                     &copy; <span id="displayYear"></span> All Rights Reserved By
                     <a href="https://html.design/">Free Html Templates</a>

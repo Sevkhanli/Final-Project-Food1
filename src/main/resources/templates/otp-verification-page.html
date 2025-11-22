@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="az" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Hesab Təsdiqlənməsi</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f4f4; margin: 0; }
+        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); width: 400px; max-width: 90%; text-align: center; }
+        h2 { color: #333; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        p { color: #555; margin-bottom: 25px; line-height: 1.5; }
+        input[type="text"] { width: 100%; padding: 12px; margin-bottom: 25px; border: 2px solid #ccc; border-radius: 4px; box-sizing: border-box; text-align: center; font-size: 1.5em; letter-spacing: 10px; transition: border-color 0.3s; }
+        input[type="text"]:focus { border-color: #007bff; outline: none; }
+        button { background-color: #28a745; color: white; padding: 12px 15px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1.1em; transition: background-color 0.3s, transform 0.1s; font-weight: bold; }
+        button:hover { background-color: #218838; }
+        button:active { transform: translateY(1px); }
+        .error { color: #dc3545; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-weight: bold; }
+        .email-display { font-weight: bold; color: #007bff; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>E-poçt Təsdiqlənməsi</h2>
+
+    <p>Qeydiyyatı tamamlamaq üçün <span class="email-display" th:text="${email}">user@example.com</span> adresinizə göndərilmiş 6 rəqəmli kodu daxil edin.</p>
+
+    <!-- Həll: Xəta mesajı göstərilir -->
+    <div th:if="${error}" class="error">
+        <p th:text="${error}" style="margin: 0;"></p>
+    </div>
+
+    <form th:action="@{/verify-otp}" method="post">
+        <!-- Zəruri email gizli inputu -->
+        <input type="hidden" name="email" th:value="${email}" />
+
+        <label for="otpCode" style="display: block; text-align: left; margin-bottom: 5px; font-weight: 600;">Təsdiqləmə Kodu:</label>
+        <input type="text" id="otpCode" name="otpCode" placeholder=" _ _ _ _ _ _ " maxlength="6" required />
+
+        <!-- 🏆 ƏSAS DÜZƏLİŞ: Spring Security CSRF tokeni əlavə edilir -->
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+        <button type="submit">Hesabı Təsdiqlə</button>
+    </form>
+</div>
+</body>
+</html>

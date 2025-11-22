@@ -7,6 +7,7 @@ import az.edu.itbrains.food.models.Reservation;
 import az.edu.itbrains.food.repositories.CustomerRepository;
 import az.edu.itbrains.food.repositories.ReservationRepository;
 import az.edu.itbrains.food.services.IReservationService;
+import az.edu.itbrains.food.services.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class ReservationServiceImpl implements IReservationService {
 
     private final ReservationRepository reservationRepository;
     private final CustomerRepository customerRepository;
+    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -40,33 +42,57 @@ public class ReservationServiceImpl implements IReservationService {
         reservation.setReservationDate(reservationRequestDTO.getReservationDate());
         reservation.setReservationTime(reservationRequestDTO.getReservationTime());
         reservation.setNumberOfPeople(reservationRequestDTO.getNumberOfPeople());
-        // ⭐ DÜZƏLİŞ: Enum dəyəri təyin edilir
         reservation.setStatus(ReservationStatus.GOZLEMEDE);
 
         reservationRepository.save(reservation);
+
+        // Yeni rezervasiya yaradılanda "GÖZLƏMƏDƏ" maili göndərilir
+        emailService.sendReservationStatusEmail(
+                customer.getEmail(),
+                customer.getName(),
+                ReservationStatus.GOZLEMEDE.name(),
+                reservation.getReservationDate().toString(),
+                reservation.getReservationTime().toString()
+        );
     }
 
-    // ⭐ YENİ METOD: Bütün reservasiyaları gətirmək
     @Override
     public List<Reservation> getAllReservations() {
         Sort sort = Sort.by(
-                Sort.Order.desc("reservationDate"), // Ən yeni tarix yuxarıda
-                Sort.Order.desc("reservationTime")  // Eyni tarix üçün ən yeni saat yuxarıda
+                Sort.Order.desc("reservationDate"),
+                Sort.Order.desc("reservationTime")
         );
-        return reservationRepository.findAll(sort); // Bu metod çağırılmalıdır!
-            }
+        return reservationRepository.findAll(sort);
+    }
 
     @Override
     public Reservation getReservationById(Long id) {
         return reservationRepository.findById(id).orElse(null);
     }
 
-    // ⭐ YENİ METOD: Statusu yeniləmək
+    // ⭐ ƏSAS MƏNTİQ BURADADIR: Status dəyişəndə mail göndərmək
     @Override
+    @Transactional
     public Reservation updateReservationStatus(Long id, ReservationStatus status) {
         Optional<Reservation> optionalReservation = reservationRepository.findById(id);
+
         if (optionalReservation.isPresent()) {
             Reservation reservation = optionalReservation.get();
+
+            // Yalnız status həqiqətən dəyişibsə və təsdiq/ləğv statusuna keçibsə mail göndər
+            if (reservation.getStatus() != status &&
+                    (status == ReservationStatus.TESDIQLENIB || status == ReservationStatus.LEGV_EDILIB)) { // 🏆 DÜZƏLİŞ: LEGV_EDILIB istifadə olunur
+
+                // Maili göndər (Təsdiqləndi və ya Ləğv edildi)
+                emailService.sendReservationStatusEmail(
+                        reservation.getCustomer().getEmail(),
+                        reservation.getCustomer().getName(),
+                        status.name(),
+                        reservation.getReservationDate().toString(),
+                        reservation.getReservationTime().toString()
+                );
+            }
+
             reservation.setStatus(status);
             return reservationRepository.save(reservation);
         }
@@ -75,6 +101,6 @@ public class ReservationServiceImpl implements IReservationService {
 
     @Override
     public void deleteReservation(Long id) {
-            reservationRepository.deleteById(id);
+        reservationRepository.deleteById(id);
     }
 }

@@ -26,7 +26,7 @@ public class Order {
     private LocalDateTime orderDate;
 
     @Column(name = "order_status")
-    private String orderStatus; // "NEW", "PREPARING", "DELIVERED", "CANCELLED" kimi statuslar saxlanacaq
+    private String orderStatus; // "NEW", "PREPARING", "DELIVERED", "CANCELLED" kimi statuslar saxlanılacaq
 
 
     @ManyToOne
@@ -39,6 +39,10 @@ public class Order {
 
     @Column(name = "phone_number")
     private String phoneNumber;
+
+    // 👇 YENİ SAHƏ
+    @Column(name = "customer_email")
+    private String customerEmail;
 
     private String address;
 

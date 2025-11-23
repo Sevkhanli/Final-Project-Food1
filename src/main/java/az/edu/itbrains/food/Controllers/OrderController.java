@@ -8,6 +8,7 @@ import az.edu.itbrains.food.models.User;
 import az.edu.itbrains.food.services.IOrderService;
 import az.edu.itbrains.food.services.ICartService;
 import az.edu.itbrains.food.services.IUserService;
+import az.edu.itbrains.food.services.EmailService; // 👈 YENİ İMPORT
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class OrderController {
     private final IOrderService orderService;
     private final ICartService cartService;
     private final IUserService userService;
+    private final EmailService emailService; // 👈 ƏLAVƏ EDİLDİ
 
     // 1. Sifarişin Verilməsi (POST /checkout)
     @PostMapping("/checkout")
@@ -41,7 +43,7 @@ public class OrderController {
             HttpSession session,
             Model model) {
 
-        // ADIM 1: Validasiya xətası varsa, geri qayıt
+        // ADIM 1 & 2: Validasiya və Səbət Kontrolu
         if (bindingResult.hasErrors()) {
             List<CartItemDTO> cart = cartService.getCartItems(session);
             model.addAttribute("cartItems", cart);
@@ -51,7 +53,6 @@ public class OrderController {
             return "cart";
         }
 
-        // ADIM 2: Səbətin boş olmaması kontrol edilir
         List<CartItemDTO> cart = cartService.getCartItems(session);
         if (cart == null || cart.isEmpty()) {
             return "redirect:/cart?error=empty";
@@ -62,11 +63,14 @@ public class OrderController {
         order.setFullName(checkoutRequest.getFullName());
         order.setPhoneNumber(checkoutRequest.getPhoneNumber());
         order.setAddress(checkoutRequest.getAddress());
+        order.setCustomerEmail(checkoutRequest.getEmail()); // 👈 DTO-dan gələn email yazılır
         order.setTotalPrice(cartService.calculateTotalPrice(cart));
         order.setOrderDate(LocalDateTime.now());
-        order.setOrderStatus("YENİ"); // <-- YENİ SİFARİŞƏ STATUS TƏYİNİ
+        order.setOrderStatus("YENİ");
 
         // ADIM 4: Cari istifadəçi kontrol edilir (Login olunmuşsa)
+        String recipientEmail = checkoutRequest.getEmail(); // Əsasən bu emailə gedəcək
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()
                 && !authentication.getPrincipal().equals("anonymousUser")) {
@@ -75,6 +79,9 @@ public class OrderController {
             User currentUser = userService.findUserByUsername(username);
             if (currentUser != null) {
                 order.setUsers(currentUser);
+                // Əgər login olubsa, User-in emailini əsas götürürük
+                recipientEmail = currentUser.getEmail();
+                order.setCustomerEmail(currentUser.getEmail()); // Bazaya User-in emailini yazırıq
             }
         }
 
@@ -94,6 +101,11 @@ public class OrderController {
         try {
             Order savedOrder = orderService.saveOrder(order);
 
+            // ⭐ ADIM 6.5: Sifariş təsdiqlənməsi E-poçtunu göndər
+            if (recipientEmail != null && !recipientEmail.isEmpty()) {
+                emailService.sendOrderConfirmationEmail(recipientEmail, savedOrder);
+            }
+
             // ADIM 7: Session-dan səbəti sil
             session.removeAttribute("cart");
 
@@ -107,7 +119,7 @@ public class OrderController {
         }
     }
 
-    // 2. Uğurlu Sifariş Səhifəsi (GET /order-success)
+    // 2. Uğurlu Sifariş Səhifəsi (GET /order-success) - Dəyişiklik yoxdur
     @GetMapping("/order-success")
     public String orderSuccess(
             @RequestParam(value = "orderId", required = false) Long orderId,

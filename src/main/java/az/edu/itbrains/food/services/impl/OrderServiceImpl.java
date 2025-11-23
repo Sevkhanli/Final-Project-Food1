@@ -6,6 +6,7 @@ import az.edu.itbrains.food.DTOs.DashboardDTO.OrderListDTO;
 import az.edu.itbrains.food.models.Order;
 import az.edu.itbrains.food.repositories.OrderRepository;
 import az.edu.itbrains.food.services.IOrderService;
+import az.edu.itbrains.food.services.EmailService; // 👈 YENİ İMPORT
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements IOrderService {
 
     private final OrderRepository orderRepository;
+    private final EmailService emailService; // 👈 ƏLAVƏ EDİLDİ
 
     @Override
     @Transactional
@@ -86,20 +88,19 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     /**
-     * ⭐ DÜZƏLİŞ: Dashboard üçün: ANCAQ BUGÜN üçün gəliri hesablayır.
+     * Dashboard üçün: ANCAQ BUGÜN üçün gəliri hesablayır.
      */
     @Override
     @Transactional(readOnly = true)
     public double calculateTodayRevenue() {
         LocalDateTime startOfToday = LocalDateTime.now().with(LocalTime.MIN);
-        // İndi Repository-dəki sumTotalPriceSince metodunu çağırır. (Əvvəlki işlək vəziyyətinə qayıtdı)
+        // İndi Repository-dəki sumTotalPriceSince metodunu çağırır.
         Double totalRevenue = orderRepository.sumTotalPriceSince(startOfToday);
         return totalRevenue != null ? totalRevenue : 0.0;
     }
 
     /**
-     * ⭐ YENİ METOD: Sifarişlər səhifəsi üçün: BÜTÜN DÖVRÜN ümumi gəlirini hesablayır.
-     * Qeyd: Bu metodu IOrderService interfeysinə əlavə etməlisiniz.
+     * BÜTÜN DÖVRÜN ümumi gəlirini hesablayır.
      */
     @Override
     @Transactional(readOnly = true)
@@ -179,7 +180,18 @@ public class OrderServiceImpl implements IOrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Sifariş tapılmadı: ID=" + orderId));
 
+        // 1. Statusu yenilə
         order.setOrderStatus(newStatus);
         orderRepository.save(order);
+
+        // 2. ⭐ Status Yenilənməsi mailini göndər
+        String customerEmail = order.getCustomerEmail();
+        String fullName = order.getFullName();
+
+        if (customerEmail != null && !customerEmail.isEmpty()) {
+            emailService.sendOrderStatusUpdateEmail(customerEmail, orderId, newStatus, fullName);
+        } else {
+            System.err.println("Status yenilənməsi maili göndərilmədi. Müştəri email ünvanı tapılmadı.");
+        }
     }
 }

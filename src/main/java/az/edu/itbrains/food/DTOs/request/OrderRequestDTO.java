@@ -1,5 +1,6 @@
 package az.edu.itbrains.food.DTOs.request;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -18,9 +19,14 @@ public class OrderRequestDTO {
     private String fullName;
 
     @NotEmpty(message = "Əlaqə Nömrəsi mütləqdir.")
-    private String phoneNumber; // Validation qaydaları buraya əlavə oluna bilər
+    private String phoneNumber;
 
     @NotEmpty(message = "Ünvan mütləqdir.")
     @Size(min = 5, message = "Ünvan ən az 5 simvol olmalıdır.")
     private String address;
+
+    // 👇 YENİ SAHƏ: Anonim sifarişçilər üçün
+    @NotEmpty(message = "E-poçt ünvanı mütləqdir.")
+    @Email(message = "Düzgün e-poçt formatı daxil edin.")
+    private String email;
 }

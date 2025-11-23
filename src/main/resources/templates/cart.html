@@ -162,6 +162,14 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="email">E-poçt Ünvanı</label>
+                        <input type="email" id="email" name="email" required
+                               th:field="*{email}"
+                               th:classappend="${#fields.hasErrors('email') ? 'is-invalid' : ''}">
+
+                        <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></div>
+                    </div>
+                    <div class="form-group">
                         <label for="address">Ünvan</label>
                         <textarea id="address" name="address" rows="3" required
                                   th:field="*{address}"

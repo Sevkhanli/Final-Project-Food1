@@ -36,4 +36,8 @@ public interface IUserService {
     Long countActiveUsers();
     Long countBlockedUsers();
     Long countAdminUsers();
+
+    // 🎉 YENİ CASHBACK METODLARI
+    double getUserCashbackBalance(String email);
+    void updateCashbackBalance(String email, double newBalance);
 }

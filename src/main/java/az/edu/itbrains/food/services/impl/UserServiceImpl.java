@@ -203,6 +203,24 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    public double getUserCashbackBalance(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new RuntimeException("İstifadəçi tapılmadı: " + email);
+        }
+        return user.getCashbackBalance();
+    }
+    @Override
+    public void updateCashbackBalance(String email, double newBalance) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new RuntimeException("İstifadəçi tapılmadı: " + email);
+        }
+        user.setCashbackBalance(newBalance);
+        userRepository.save(user);
+    }
+
+    @Override
     public void updateUserStatus(Long userId, String newStatus) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("İstifadəçi tapılmadı. ID: " + userId));
@@ -212,5 +230,7 @@ public class UserServiceImpl implements IUserService {
         user.setStatus(status);
 
         userRepository.save(user);
+
+
     }
 }

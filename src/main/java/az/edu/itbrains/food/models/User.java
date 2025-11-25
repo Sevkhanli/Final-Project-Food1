@@ -20,12 +20,13 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
     private String surname;
 
-    @Enumerated(EnumType.STRING) // Status üçün Enum istifadə etmək məsləhətdir
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
-    private Status status = Status.GÖZLƏMƏDƏ; // 👈 DƏYİŞİKLİK: Default olaraq GÖZLƏMƏDƏ qoyulur
+    private Status status = Status.GÖZLƏMƏDƏ;
 
     @Email(message = "email duzgun deyil")
     @Column(name = "email", nullable = false, unique = true)
@@ -33,6 +34,10 @@ public class User {
 
     @Column(name = "password", nullable = false)
     private String password;
+
+    // 🎉 YENİ SAHƏ: Cashback balansı
+    @Column(name = "cashback_balance", nullable = false, columnDefinition = "DOUBLE DEFAULT 0.0")
+    private double cashbackBalance = 0.0;
 
     // Many-to-Many əlaqəsi
     @ManyToMany(fetch = FetchType.EAGER)

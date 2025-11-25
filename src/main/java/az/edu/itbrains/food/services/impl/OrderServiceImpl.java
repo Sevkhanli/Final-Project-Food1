@@ -4,9 +4,11 @@ import az.edu.itbrains.food.DTOs.DashboardDTO.OrderDetailDTO;
 import az.edu.itbrains.food.DTOs.DashboardDTO.OrderItemDetailDTO;
 import az.edu.itbrains.food.DTOs.DashboardDTO.OrderListDTO;
 import az.edu.itbrains.food.models.Order;
+import az.edu.itbrains.food.models.User;
 import az.edu.itbrains.food.repositories.OrderRepository;
+import az.edu.itbrains.food.repositories.UserRepository;
 import az.edu.itbrains.food.services.IOrderService;
-import az.edu.itbrains.food.services.EmailService; // 👈 YENİ İMPORT
+import az.edu.itbrains.food.services.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,12 +25,35 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements IOrderService {
 
     private final OrderRepository orderRepository;
-    private final EmailService emailService; // 👈 ƏLAVƏ EDİLDİ
+    private final UserRepository userRepository;
+    private final EmailService emailService;
+
+    // 🎯 CASHBACK FAİZİ (5%)
+    private static final double CASHBACK_PERCENTAGE = 0.05;
 
     @Override
     @Transactional
     public Order saveOrder(Order order) {
-        return orderRepository.save(order);
+        // 1️⃣ Sifarişi saxla
+        Order savedOrder = orderRepository.save(order);
+
+        // 2️⃣ Əgər istifadəçi varsa, cashback əlavə et
+        if (savedOrder.getUsers() != null) {
+            User user = savedOrder.getUsers();
+
+            // Cashback hesabla (5% məsələn)
+            double cashbackAmount = savedOrder.getTotalPrice() * CASHBACK_PERCENTAGE;
+
+            // User-in cashback balansına əlavə et
+            user.setCashbackBalance(user.getCashbackBalance() + cashbackAmount);
+
+            // User-i yenilə
+            userRepository.save(user);
+
+            System.out.println("✅ Cashback əlavə edildi: " + cashbackAmount + " AZN - User: " + user.getEmail());
+        }
+
+        return savedOrder;
     }
 
     @Override
@@ -37,32 +62,22 @@ public class OrderServiceImpl implements IOrderService {
         return order.orElse(null);
     }
 
-    /**
-     * Sifarişin Detallarını (Order və OrderItems) DTO formatında gətirir.
-     */
     @Override
     @Transactional(readOnly = true)
     public OrderDetailDTO getOrderDetailsById(Long orderId) {
-
         Order order = orderRepository.findById(orderId).orElse(null);
         if (order == null) {
             return null;
         }
 
-        // OrderItems-in DTO-ya çevrilməsi
         List<OrderItemDetailDTO> itemDetails = order.getOrderItems().stream()
                 .map(item -> new OrderItemDetailDTO(
-                        // menuItem əlaqəsi vasitəsilə məhsulun adını çəkirik.
                         item.getMenuItem() != null ? item.getMenuItem().getName() : "Naməlum Məhsul",
-
                         item.getQuantity(),
-
-                        // Price
                         BigDecimal.valueOf(item.getPrice())
                 ))
                 .collect(Collectors.toList());
 
-        // Əsas OrderDetailDTO-nun doldurulması
         OrderDetailDTO dto = new OrderDetailDTO();
         dto.setId(order.getId());
         dto.setOrderDate(order.getOrderDate());
@@ -70,57 +85,42 @@ public class OrderServiceImpl implements IOrderService {
         dto.setFullName(order.getFullName());
         dto.setPhoneNumber(order.getPhoneNumber());
         dto.setAddress(order.getAddress());
-
-        // Entity-də double olduğu üçün çevrilir
         dto.setTotalPrice(BigDecimal.valueOf(order.getTotalPrice()));
         dto.setOrderItems(itemDetails);
 
         return dto;
     }
 
-
     @Override
     @Transactional(readOnly = true)
     public long countTodayOrders() {
         LocalDateTime startOfToday = LocalDateTime.now().with(LocalTime.MIN);
-        // Repository-də countOrdersSince metodu mövcuddur
         return orderRepository.countOrdersSince(startOfToday);
     }
 
-    /**
-     * Dashboard üçün: ANCAQ BUGÜN üçün gəliri hesablayır.
-     */
     @Override
     @Transactional(readOnly = true)
     public double calculateTodayRevenue() {
         LocalDateTime startOfToday = LocalDateTime.now().with(LocalTime.MIN);
-        // İndi Repository-dəki sumTotalPriceSince metodunu çağırır.
         Double totalRevenue = orderRepository.sumTotalPriceSince(startOfToday);
         return totalRevenue != null ? totalRevenue : 0.0;
     }
 
-    /**
-     * BÜTÜN DÖVRÜN ümumi gəlirini hesablayır.
-     */
     @Override
     @Transactional(readOnly = true)
     public double calculateTotalRevenue() {
-        // Repository-dəki sumTotalRevenue metodunu çağırır.
         Optional<Double> totalRevenue = orderRepository.sumTotalRevenue();
         return totalRevenue.orElse(0.0);
     }
 
-
     @Override
     public List<Order> getRecentOrders(int limit) {
-        // Repository-də findTop5ByOrderByOrderDateDesc metodu mövcud olduğu fərz edilir
         return orderRepository.findTop5ByOrderByOrderDateDesc();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<OrderListDTO> getAllOrdersForAdminList() {
-        // ... (Mövcud implementasiya dəyişdirilmədən qalır)
         List<Order> orders = orderRepository.findAllByOrderByOrderDateDesc();
 
         if (orders == null || orders.isEmpty()) {
@@ -145,28 +145,18 @@ public class OrderServiceImpl implements IOrderService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Toplam Sifariş sayğacının implementasiyası.
-     */
     @Override
     @Transactional(readOnly = true)
     public long countTotalOrders() {
-        return orderRepository.count(); // JpaRepository-nin yerli metodu
+        return orderRepository.count();
     }
 
-    /**
-     * Gözləmədə sayğacının implementasiyası.
-     */
     @Override
     @Transactional(readOnly = true)
     public long countPendingOrders() {
-        // "Gözləmədə" kartı üçün "YENİ" statuslu sifarişləri sayır
         return orderRepository.countByOrderStatus("YENİ");
     }
 
-    /**
-     * Çatdırılıb sayğacının implementasiyası.
-     */
     @Override
     @Transactional(readOnly = true)
     public long countDeliveredOrders() {
@@ -174,17 +164,14 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    @Transactional // Statusu yeniləyən metod
+    @Transactional
     public void updateOrderStatus(Long orderId, String newStatus) {
-
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Sifariş tapılmadı: ID=" + orderId));
 
-        // 1. Statusu yenilə
         order.setOrderStatus(newStatus);
         orderRepository.save(order);
 
-        // 2. ⭐ Status Yenilənməsi mailini göndər
         String customerEmail = order.getCustomerEmail();
         String fullName = order.getFullName();
 

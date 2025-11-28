@@ -165,6 +165,93 @@
             background: #4caf50;
             color: white;
         }
+
+        /* Rezervasiyalar */
+        .reservations-section {
+            margin: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .section-header {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .section-header h5 {
+            color: #667eea;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .reservation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .reservation-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .reservation-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .reservation-info {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        .reservation-info > div {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+        }
+
+        .reservation-info i {
+            color: #667eea;
+            font-size: 16px;
+        }
+
+        .reservation-status {
+            margin-left: auto;
+        }
+
+        .status-badge-res {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-gozlemede {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-tesdiqlenib {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-legv_edilib {
+            background: #f8d7da;
+            color: #842029;
+        }
     </style>
 </head>
 <body>
@@ -278,6 +365,39 @@
             </div>
         </div>
 
+        <!-- Rezervasiyalar Bölməsi -->
+        <div class="reservations-section" th:if="${reservations != null and !reservations.isEmpty()}">
+            <div class="section-header">
+                <h5><i class="fas fa-calendar-check"></i> Rezervasiyalarım</h5>
+            </div>
+
+            <div class="reservation-list">
+                <div th:each="reservation : ${reservations}" class="reservation-item">
+                    <div class="reservation-info">
+                        <div class="reservation-date">
+                            <i class="fas fa-calendar"></i>
+                            <span th:text="${#temporals.format(reservation.reservationDate, 'dd.MM.yyyy')}">01.01.2024</span>
+                        </div>
+                        <div class="reservation-time">
+                            <i class="fas fa-clock"></i>
+                            <span th:text="${#temporals.format(reservation.reservationTime, 'HH:mm')}">18:00</span>
+                        </div>
+                        <div class="reservation-people">
+                            <i class="fas fa-users"></i>
+                            <span th:text="${reservation.numberOfPeople} + ' nəfər'">4 nəfər</span>
+                        </div>
+                    </div>
+
+                    <div class="reservation-status">
+                            <span th:class="'status-badge-res status-' + ${#strings.toLowerCase(reservation.status.name())}"
+                                  th:text="${reservation.status.azName}">
+                                Gözləmədə
+                            </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Action Buttons -->
         <div class="text-center p-4">
             <a href="/menu" class="btn btn-primary btn-custom me-2">
@@ -286,9 +406,14 @@
             <a href="/my-orders" class="btn btn-success btn-custom me-2">
                 <i class="fas fa-box"></i> Sifarişlərim
             </a>
-            <a href="/logout" class="btn btn-outline-danger btn-custom">
-                <i class="fas fa-sign-out-alt"></i> Çıxış
-            </a>
+
+            <!-- Çıxış formu (Spring Security üçün) -->
+            <form action="/logout" method="post" style="display: inline;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn btn-outline-danger btn-custom">
+                    <i class="fas fa-sign-out-alt"></i> Çıxış
+                </button>
+            </form>
         </div>
     </div>
 </div>

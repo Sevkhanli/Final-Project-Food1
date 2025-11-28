@@ -14,4 +14,6 @@ public interface IReservationService {
     Reservation getReservationById(Long id); // Detal/Redaktə üçün
     Reservation updateReservationStatus(Long id, ReservationStatus status);
     void deleteReservation(Long id); // Silmə əməliyyatı üçün
+    List<Reservation> getUserReservationsByEmail(String email);
+
 }

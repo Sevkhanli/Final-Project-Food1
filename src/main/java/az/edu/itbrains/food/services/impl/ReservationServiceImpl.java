@@ -103,4 +103,9 @@ public class ReservationServiceImpl implements IReservationService {
     public void deleteReservation(Long id) {
         reservationRepository.deleteById(id);
     }
+
+    @Override
+    public List<Reservation> getUserReservationsByEmail(String email) {
+        return reservationRepository.findByCustomerEmailOrderByReservationDateDescReservationTimeDesc(email);
+    }
 }

@@ -63,71 +63,11 @@
                                 width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
 
                         <!-- Sayğac -->
-                        <div th:if="${reservationDate}" class="text-center mt-3">
-                            <h4 id="countdown-title" class="mb-3">Rezervasiyanıza qalan vaxt:</h4>
-                            <div id="countdown-area" class="d-flex justify-content-center">
-                                <div class="countdown-box bg-warning text-dark mx-2">
-                                    <h3 id="days" class="display-4 font-weight-bold mb-0">00</h3><small>Gün</small>
-                                </div>
-                                <div class="countdown-box bg-warning text-dark mx-2">
-                                    <h3 id="hours" class="display-4 font-weight-bold mb-0">00</h3><small>Saat</small>
-                                </div>
-                                <div class="countdown-box bg-warning text-dark mx-2">
-                                    <h3 id="minutes" class="display-4 font-weight-bold mb-0">00</h3><small>Dəqiqə</small>
-                                </div>
-                                <div class="countdown-box bg-warning text-dark mx-2">
-                                    <h3 id="seconds" class="display-4 font-weight-bold mb-0">00</h3><small>Saniyə</small>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 </main>
-
-<!-- Countdown JS -->
-<script th:inline="javascript" th:if="${reservationDate}">
-
-    var reservationDateStr = '[[${reservationDate}]]'; // Məsələn: "2025-09-26"
-    var reservationTimeStr = '[[${reservationTime}]]'; // Məsələn: "19:00"
-
-    var partsDate = reservationDateStr.split('-');
-    var partsTime = reservationTimeStr.split(':');
-
-    // KRİTİK DÜZƏLİŞ: Ayı (Month) 1 çıxaraq təyin edirik
-    var reservationDateTime = new Date(
-        parseInt(partsDate[0]),         // İl (Məsələn: 2025)
-        parseInt(partsDate[1]) - 1,     // AY (Düzəliş: 0-dan başlayır, ona görə -1)
-        parseInt(partsDate[2]),         // Gün
-        parseInt(partsTime[0]),         // Saat
-        parseInt(partsTime[1]),         // Dəqiqə
-        0
-    ).getTime();
-
-    var x = setInterval(function() {
-        var now = new Date().getTime();
-        var distance = reservationDateTime - now;
-
-        if (distance < 0) {
-            clearInterval(x);
-            // Element ID'ləri düzgündürsə, bu hissə görünəcək
-            document.getElementById("days").innerHTML = "00";
-            // ... və digərlərini də sıfırlayın və ya mesaj göstərin
-            return;
-        }
-
-        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        document.getElementById("days").innerHTML = String(days).padStart(2, '0');
-        document.getElementById("hours").innerHTML = String(hours).padStart(2, '0');
-        document.getElementById("minutes").innerHTML = String(minutes).padStart(2, '0');
-        document.getElementById("seconds").innerHTML = String(seconds).padStart(2, '0');
-    }, 1000);
-</script>
 </body>
 </html>

@@ -181,4 +181,9 @@ public class OrderServiceImpl implements IOrderService {
             System.err.println("Status yenilənməsi maili göndərilmədi. Müştəri email ünvanı tapılmadı.");
         }
     }
+
+    @Override
+    public List<Order> getOrdersByUser(User user) {
+        return orderRepository.findByUsersOrderByOrderDateDesc(user);
+    }
 }

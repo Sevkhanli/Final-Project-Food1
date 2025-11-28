@@ -1,6 +1,7 @@
 package az.edu.itbrains.food.repositories;
 
 import az.edu.itbrains.food.models.Order;
+import az.edu.itbrains.food.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -30,4 +31,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
 
     long countByOrderStatus(String orderStatus);
+
+    List<Order> findByUsersOrderByOrderDateDesc(User user);
+
 }

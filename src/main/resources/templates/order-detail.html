@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="az" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sifariş Detalları - Fast Food</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f5f7fa;
+            padding: 30px 0;
+        }
+
+        .detail-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .detail-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+        }
+
+        .status-badge {
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-yeni { background: #fff3cd; color: #856404; }
+        .status-hazirlanir { background: #cfe2ff; color: #084298; }
+        .status-yolda { background: #cff4fc; color: #055160; }
+        .status-catdirildi, .status-çatdirildi { background: #d1e7dd; color: #0f5132; }
+
+        .info-section {
+            padding: 30px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .info-row {
+            display: flex;
+            padding: 15px 0;
+            border-bottom: 1px dashed #e0e0e0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            width: 180px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .info-value {
+            flex: 1;
+            color: #333;
+        }
+
+        .items-table {
+            margin: 0;
+        }
+
+        .items-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            padding: 15px;
+        }
+
+        .items-table td {
+            padding: 15px;
+            vertical-align: middle;
+        }
+
+        .total-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 0 0 20px 20px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            font-size: 16px;
+        }
+
+        .total-row.grand-total {
+            border-top: 2px solid #333;
+            margin-top: 10px;
+            padding-top: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .cashback-alert {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="detail-card">
+        <!-- Header -->
+        <div class="detail-header">
+            <h2 class="mb-3">
+                <i class="fas fa-receipt"></i>
+                Sifariş #<span th:text="${order.id}">1</span>
+            </h2>
+            <div>
+                    <span th:class="'status-badge status-' + ${#strings.toLowerCase(order.orderStatus)}"
+                          th:text="${order.orderStatus}">
+                        YENİ
+                    </span>
+            </div>
+        </div>
+
+        <!-- Sifariş Məlumatları -->
+        <div class="info-section">
+            <h5 class="mb-3">
+                <i class="fas fa-info-circle text-primary"></i> Sifariş Məlumatları
+            </h5>
+
+            <div class="info-row">
+                <div class="info-label">
+                    <i class="far fa-calendar"></i> Tarix
+                </div>
+                <div class="info-value">
+                        <span th:text="${#temporals.format(order.orderDate, 'dd MMMM yyyy, HH:mm')}">
+                            01 Yanvar 2024, 12:00
+                        </span>
+                </div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">
+                    <i class="fas fa-user"></i> Ad Soyad
+                </div>
+                <div class="info-value" th:text="${order.fullName}">
+                    İstifadəçi Adı
+                </div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">
+                    <i class="fas fa-phone"></i> Telefon
+                </div>
+                <div class="info-value" th:text="${order.phoneNumber}">
+                    +994 XX XXX XX XX
+                </div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">
+                    <i class="fas fa-map-marker-alt"></i> Ünvan
+                </div>
+                <div class="info-value" th:text="${order.address}">
+                    Çatdırılma ünvanı
+                </div>
+            </div>
+
+            <div class="info-row" th:if="${order.customerEmail != null}">
+                <div class="info-label">
+                    <i class="fas fa-envelope"></i> Email
+                </div>
+                <div class="info-value" th:text="${order.customerEmail}">
+                    email@example.com
+                </div>
+            </div>
+        </div>
+
+        <!-- Sifariş Məhsulları -->
+        <div class="info-section">
+            <h5 class="mb-3">
+                <i class="fas fa-shopping-bag text-primary"></i> Sifariş Edilən Məhsullar
+            </h5>
+
+            <table class="table items-table">
+                <thead>
+                <tr>
+                    <th>Məhsul</th>
+                    <th width="100" class="text-center">Miqdar</th>
+                    <th width="120" class="text-end">Qiymət</th>
+                    <th width="120" class="text-end">Cəmi</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${order.orderItems}">
+                    <td>
+                        <strong th:text="${item.menuItem != null ? item.menuItem.name : 'Məhsul'}">
+                            Burger
+                        </strong>
+                    </td>
+                    <td class="text-center">
+                        <span class="badge bg-secondary" th:text="${item.quantity}">1</span>
+                    </td>
+                    <td class="text-end" th:text="${item.price} + ' AZN'">
+                        10.00 AZN
+                    </td>
+                    <td class="text-end">
+                        <strong th:text="${item.quantity * item.price} + ' AZN'">
+                            10.00 AZN
+                        </strong>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Toplam -->
+        <div class="total-section">
+            <div class="total-row grand-total">
+                <span>ÜMUMİ MƏBLƏĞ:</span>
+                <span th:text="${order.totalPrice} + ' AZN'">25.50 AZN</span>
+            </div>
+
+            <!-- Cashback məlumatı -->
+            <div class="cashback-alert" th:if="${order.users != null}">
+                <div class="d-flex align-items-center">
+                    <div class="me-3" style="font-size: 40px;">
+                        <i class="fas fa-gift"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-1">Cashback Qazandınız! 🎉</h6>
+                        <p class="mb-0">
+                            Bu sifarişdən <strong th:text="${#numbers.formatDecimal(order.totalPrice * 0.05, 1, 2)} + ' AZN'">1.25 AZN</strong>
+                            cashback hesabınıza əlavə edildi.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Düymələr -->
+    <div class="text-center mt-4">
+        <a href="/my-orders" class="btn btn-primary btn-lg me-2">
+            <i class="fas fa-arrow-left"></i> Sifarişlərə Qayıt
+        </a>
+        <a href="/menu" class="btn btn-success btn-lg">
+            <i class="fas fa-utensils"></i> Yeni Sifariş
+        </a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

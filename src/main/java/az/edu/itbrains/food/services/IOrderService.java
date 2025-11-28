@@ -3,6 +3,8 @@ package az.edu.itbrains.food.services;
 import az.edu.itbrains.food.DTOs.DashboardDTO.OrderDetailDTO;
 import az.edu.itbrains.food.DTOs.DashboardDTO.OrderListDTO;
 import az.edu.itbrains.food.models.Order;
+import az.edu.itbrains.food.models.User;
+
 import java.util.List;
 
 public interface IOrderService {
@@ -27,4 +29,5 @@ public interface IOrderService {
     long countDeliveredOrders();
     void updateOrderStatus(Long orderId, String newStatus);
 
+    List<Order> getOrdersByUser(User user);
 }

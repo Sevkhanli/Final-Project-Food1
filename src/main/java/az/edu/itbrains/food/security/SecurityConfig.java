@@ -25,8 +25,6 @@ public class SecurityConfig {
             String redirectUrl = "/login?error";
 
             if (exception instanceof DisabledException) {
-                // DisabledException həm BLOKLANIB, həm də GÖZLƏMƏDƏ statusları üçün atılır.
-                // Qeyd: Bu handler yalnız "/login" POST sorğusu uğursuz olduqda işləyir.
                 redirectUrl = "/login?blocked";
             }
 
@@ -37,22 +35,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // CSRF-i /verify-otp POST-u üçün deaktiv etmirik, lakin əmin oluruq ki, Thymeleaf-də token var.
                 .authorizeHttpRequests(auth -> auth
-                        // ADMIN-lər üçün dashboard və admin panel icazəsi
                         .requestMatchers("/admin/**", "/dashboard/**").hasRole("ADMIN")
 
-                        // 🏆 ƏSAS DÜZƏLİŞ: Qeydiyyat, login VƏ OTP TƏSDİQLƏNMƏSİ açıq olsun.
-                        // Bura həm GET, həm də POST /verify-otp daxildir.
                         .requestMatchers("/", "/register", "/login", "/front/**", "/menu", "/about",
-                                "/css/**", "/js/**", "/order-success",
-                                "/verify-otp"
+                                "/css/**", "/js/**", "/order-success", "/verify-otp",
+                                "/logout" // 👈 Logout açıq
                         ).permitAll()
 
-                        // İstifadəçi üçün qorunan endpoint-lər
-                        .requestMatchers("/add-testimonial", "/api/testimonials", "/checkout").authenticated()
+                        .requestMatchers("/add-testimonial", "/api/testimonials", "/checkout",
+                                "/profile", "/my-orders", "/my-orders/**"
+                        ).authenticated()
 
-                        // Qalan hər şey giriş tələb edir
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -64,8 +58,17 @@ public class SecurityConfig {
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/")
-                        .permitAll());
+                        .logoutSuccessUrl("/?logout=true")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .clearAuthentication(true)
+                        .logoutRequestMatcher(                   // 👈 YENİ: GET və POST-a icazə
+                                request ->
+                                        request.getServletPath().equals("/logout") &&
+                                                (request.getMethod().equals("POST") || request.getMethod().equals("GET"))
+                        )
+                        .permitAll()
+                );
 
         return http.build();
     }

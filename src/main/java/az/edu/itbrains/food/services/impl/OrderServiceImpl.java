@@ -28,26 +28,20 @@ public class OrderServiceImpl implements IOrderService {
     private final UserRepository userRepository;
     private final EmailService emailService;
 
-    // 🎯 CASHBACK FAİZİ (5%)
     private static final double CASHBACK_PERCENTAGE = 0.05;
 
     @Override
     @Transactional
     public Order saveOrder(Order order) {
-        // 1️⃣ Sifarişi saxla
         Order savedOrder = orderRepository.save(order);
 
-        // 2️⃣ Əgər istifadəçi varsa, cashback əlavə et
         if (savedOrder.getUsers() != null) {
             User user = savedOrder.getUsers();
 
-            // Cashback hesabla (5% məsələn)
             double cashbackAmount = savedOrder.getTotalPrice() * CASHBACK_PERCENTAGE;
 
-            // User-in cashback balansına əlavə et
             user.setCashbackBalance(user.getCashbackBalance() + cashbackAmount);
 
-            // User-i yenilə
             userRepository.save(user);
 
             System.out.println("✅ Cashback əlavə edildi: " + cashbackAmount + " AZN - User: " + user.getEmail());
@@ -181,7 +175,6 @@ public class OrderServiceImpl implements IOrderService {
             System.err.println("Status yenilənməsi maili göndərilmədi. Müştəri email ünvanı tapılmadı.");
         }
     }
-
     @Override
     public List<Order> getOrdersByUser(User user) {
         return orderRepository.findByUsersOrderByOrderDateDesc(user);

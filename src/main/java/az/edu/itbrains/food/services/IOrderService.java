@@ -15,10 +15,8 @@ public interface IOrderService {
 
     //TODO Dashboard üçün
     long countTodayOrders();
-    // Dashboard: Bu gün gəlir
     double calculateTodayRevenue();
 
-    // ⭐ XƏTANIN HƏLLİ: BU METODU MÜTLƏQ ƏLAVƏ EDİN
     double calculateTotalRevenue();
 
     List<Order> getRecentOrders(int limit);

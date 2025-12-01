@@ -33,19 +33,15 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public User registerUser(RegisterDTO registerDTO) {
-        // 1. Email artıq mövcuddursa, istisna at
         if (userRepository.findByEmail(registerDTO.getEmail()) != null) {
             throw new RuntimeException("Bu email (" + registerDTO.getEmail() + ") artıq sistemdə mövcuddur.");
         }
 
-        // 2. DTO → Entity çevrilməsi
         User user = modelMapper.map(registerDTO, User.class);
 
-        // 3. Şifrəni şifrələmək
         String encodedPassword = passwordEncoder.encode(registerDTO.getPassword());
         user.setPassword(encodedPassword);
 
-        // 4. Default rol əlavə etmək
         Role userRole = roleRepository.findByName("ROLE_USER");
         if (userRole == null) {
             userRole = roleRepository.findByName("MÜŞTƏRİ");
@@ -56,10 +52,8 @@ public class UserServiceImpl implements IUserService {
         }
         user.getRoles().add(userRole);
 
-        // 5. Bazaya yadda saxla (Status default olaraq GÖZLƏMƏDƏ olacaq)
         User savedUser = userRepository.save(user);
 
-        // 6. OTP yaradın və göndərin
         otpService.generateAndSendOtp(savedUser.getEmail());
 
         return savedUser;
@@ -85,13 +79,7 @@ public class UserServiceImpl implements IUserService {
         return userRepository.count();
     }
 
-    // ==========================================================
-    // OTP TƏSDİQLƏNMƏSİ ÜÇÜN METOD
-    // ==========================================================
 
-    /**
-     * İstifadəçinin statusunu email adresinə görə yeniləyir (OTP təsdiqlənməsi üçün).
-     */
     @Override
     @Transactional
     public void updateUserStatusByEmail(String email, Status newStatus) {
@@ -103,9 +91,7 @@ public class UserServiceImpl implements IUserService {
         userRepository.save(user); // Statusu AKTİV edir
     }
 
-    // ==========================================================
-    // ADMIN PANEL METODLARI
-    // ==========================================================
+
 
     @Override
     @Transactional

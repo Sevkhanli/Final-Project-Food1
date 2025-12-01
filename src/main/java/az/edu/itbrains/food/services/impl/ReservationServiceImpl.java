@@ -46,7 +46,6 @@ public class ReservationServiceImpl implements IReservationService {
 
         reservationRepository.save(reservation);
 
-        // Yeni rezervasiya yaradılanda "GÖZLƏMƏDƏ" maili göndərilir
         emailService.sendReservationStatusEmail(
                 customer.getEmail(),
                 customer.getName(),
@@ -70,7 +69,6 @@ public class ReservationServiceImpl implements IReservationService {
         return reservationRepository.findById(id).orElse(null);
     }
 
-    // ⭐ ƏSAS MƏNTİQ BURADADIR: Status dəyişəndə mail göndərmək
     @Override
     @Transactional
     public Reservation updateReservationStatus(Long id, ReservationStatus status) {
@@ -79,11 +77,9 @@ public class ReservationServiceImpl implements IReservationService {
         if (optionalReservation.isPresent()) {
             Reservation reservation = optionalReservation.get();
 
-            // Yalnız status həqiqətən dəyişibsə və təsdiq/ləğv statusuna keçibsə mail göndər
             if (reservation.getStatus() != status &&
                     (status == ReservationStatus.TESDIQLENIB || status == ReservationStatus.LEGV_EDILIB)) { // 🏆 DÜZƏLİŞ: LEGV_EDILIB istifadə olunur
 
-                // Maili göndər (Təsdiqləndi və ya Ləğv edildi)
                 emailService.sendReservationStatusEmail(
                         reservation.getCustomer().getEmail(),
                         reservation.getCustomer().getName(),

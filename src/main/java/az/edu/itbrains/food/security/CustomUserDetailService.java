@@ -24,7 +24,6 @@ public class CustomUserDetailService  implements UserDetailsService {
 
         if (user != null){
 
-            // ⭐ ƏSAS YOXLAMA: İstifadəçinin statusunu yoxlayırıq.
             if (user.getStatus() != Status.AKTİV) {
 
                 String errorMessage;
@@ -37,17 +36,15 @@ public class CustomUserDetailService  implements UserDetailsService {
                     errorMessage = "Hesabınız aktiv deyil.";
                 }
 
-                // DisabledException atılır, bu da Spring Security tərəfindən login səhifəsində idarə edilə bilər.
                 throw new DisabledException(errorMessage);
             }
 
-            // Status AKTİV-dirsə, girişə icazə verilir.
             boolean isEnabled = true;
 
             org.springframework.security.core.userdetails.User loggedUser = new org.springframework.security.core.userdetails.User(
                     user.getEmail(),
                     user.getPassword(),
-                    isEnabled, // Enabled = True (çünki biz DisabledException atmadıq)
+                    isEnabled,
                     true,
                     true,
                     true,

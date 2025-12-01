@@ -25,29 +25,18 @@ public class TestimonialController {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        // 1. LOGIN YOXLANMASI
         if (authentication == null || !authentication.isAuthenticated()
                 || authentication.getPrincipal().equals("anonymousUser")) {
             return "redirect:/login";
         }
 
-        // 2. 💡 VALIDATION (BOŞ QALMA YOXLANMASI)
         if (bindingResult.hasErrors()) {
-            // Əgər hər hansı bir xəta varsa (ad və ya rəy boşdursa):
-
-            // 💡 DİQQƏT: HomeController-də olan bütün məlumatları yenidən modelə yükləməlisiniz!
-            // Çünki səhifə Index-ə qayıdanda o məlumatlar tələb olunur (Menu, Categories, Offers).
-
-            // Bu səbəbdən, bu növ validation-ı daha rahat idarə etmək üçün
-            // ən yaxşısı bu metodu HomeController-ə köçürməkdir.
-            // Ancaq qısa həll kimi, sadəcə Index View-ünü qaytarırıq.
 
             return "index"; // Index səhifəsinə geri qayıt, lakin bu dəfə xəta mesajları görünəcək.
         }
 
-        // 3. UĞURLU QEYDİYYAT
         testimonialService.save(newTestimonial);
 
-        return "redirect:/"; // Uğurla əlavə olundu, Index-ə yönləndir
+        return "redirect:/";
     }
 }

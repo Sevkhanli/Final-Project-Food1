@@ -18,7 +18,6 @@ public interface ReservationRepository extends JpaRepository<Reservation,Long> {
         List<Reservation> findAll(Sort sort);
     List<Reservation> findByCustomerEmailOrderByReservationDateDescReservationTimeDesc(String email);
 
-    // 👇 ALTERNATIV: Customer obyektinə görə
     List<Reservation> findByCustomerOrderByReservationDateDescReservationTimeDesc(Customer customer);
 
 }

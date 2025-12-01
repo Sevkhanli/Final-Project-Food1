@@ -17,7 +17,6 @@ public interface UserRepository extends JpaRepository<User,Long> {
 
     boolean existsByEmail(String email);
 
-    // ⭐ YENİ METOD: İstifadəçi Adı, Soyadı və ya Email-ə görə axtarış
     @Query("SELECT u FROM User u WHERE " +
             "LOWER(u.name) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
             "LOWER(u.surname) LIKE LOWER(CONCAT('%', :query, '%')) OR " +

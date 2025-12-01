@@ -28,7 +28,6 @@ public interface IUserService {
     // Admin paneldən ID ilə status yenilənməsi
     void updateUserStatus(Long userId, String newStatus);
 
-    // 👈 YENİ METOD: OTP təsdiqlənməsi üçün Email ilə status yenilənməsi
     void updateUserStatusByEmail(String email, Status newStatus);
 
     Set<String> getAllRoleNames();
@@ -37,7 +36,6 @@ public interface IUserService {
     Long countBlockedUsers();
     Long countAdminUsers();
 
-    // 🎉 YENİ CASHBACK METODLARI
     double getUserCashbackBalance(String email);
     void updateCashbackBalance(String email, double newBalance);
 }

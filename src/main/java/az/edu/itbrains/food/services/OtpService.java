@@ -21,7 +21,6 @@ public class OtpService {
 
     @Transactional
     public void generateAndSendOtp(String userEmail) {
-        // Köhnə qeydi tapıb silir
         otpRepository.findByUserEmail(userEmail).ifPresent(otpRepository::delete);
 
         String otpCode = String.format("%06d", new Random().nextInt(999999));
@@ -40,13 +39,11 @@ public class OtpService {
     @Transactional
     public boolean validateOtp(String userEmail, String otpCode) {
 
-        // 🏆 findByEmailAndCodeForValidation metodu yalnız həm email, həm də kod uyğun gələndə nəticə qaytarır.
         Optional<Otp> otpRecord = otpRepository.findByEmailAndCodeForValidation(userEmail, otpCode);
 
         if (otpRecord.isPresent()) {
             Otp otp = otpRecord.get();
 
-            // Kod tapıldı: İndi vaxtı yoxla
             if (otp.getExpiryTime().isAfter(LocalDateTime.now())) {
                 otpRepository.delete(otp);
                 return true;
@@ -55,7 +52,6 @@ public class OtpService {
                 return false;
             }
         }
-        // Kod bazada tapılmadı (yanlış kod daxil edilib)
         return false;
     }
 }

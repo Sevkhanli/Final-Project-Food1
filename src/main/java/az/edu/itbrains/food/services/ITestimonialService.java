@@ -8,7 +8,6 @@ import java.util.List;
 public interface ITestimonialService {
     List<TestimonialResponseDTO> getAll();
 
-    // Yeni rəyi saxlamaq üçün
     void save(Testimonial testimonial);
 
     void delete(Long id);

@@ -21,9 +21,7 @@ public class ReservationController {
 
     @GetMapping
     public String showReservationForm(Model model) {
-        // Redirektdən gələn flash məlumatlar (mesaj, vaxt) Model-ə avtomatik əlavə olunur.
 
-        // Əgər DTO Model-də yoxdursa (ilkin GET sorğusu) yeni DTO əlavə edirik
         if (!model.containsAttribute("reservationDto")) {
             model.addAttribute("reservationDto", new ReservationRequestDTO());
         }
